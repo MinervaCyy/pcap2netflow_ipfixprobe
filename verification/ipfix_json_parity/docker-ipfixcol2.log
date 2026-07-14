@@ -1,0 +1,14 @@
+INFO: Configurator: Creating PID file '/tmp/ipfixcol2.pid'
+INFO: Configurator: Information Elements have been successfully loaded from '/usr/local/etc/libfds/'.
+INFO: Configurator (plugin manager): 16 plugins found
+INFO: TCP loopback input: Listening on 127.0.0.1 (port 4739)
+INFO: Configurator: Collector started successfully!
+INFO: TCP loopback input: New exporter connected from '127.0.0.1'.
+INFO: TCP loopback input: Using IPFIX Decoder for the new connection
+INFO: TCP loopback input (parser): [127.0.0.1:53638, ODID: 1] New connection detected!
+INFO: TCP loopback input (parser): [127.0.0.1:53638, ODID: 1] A definition of the Template ID 259 has been accepted.
+INFO: TCP loopback input (parser): [127.0.0.1:53638, ODID: 1] A definition of the Template ID 258 has been accepted.
+INFO: TCP loopback input: Closing 127.0.0.1:53638
+INFO: Configurator: Received a termination request (Slow termination request has been received from an external source)!
+INFO: TCP loopback input: Acceptor: Exit command received. Exiting.
+INFO: Configurator: Removing PID file '/tmp/ipfixcol2.pid'

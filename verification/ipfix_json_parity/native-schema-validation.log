@@ -1,0 +1,10 @@
+IPFIX JSON contract validation passed
+schema=${REPO_ROOT}/schemas/ipfixcol2-biflow-v1.schema.json
+contract_version=1.0.0
+input=${REPO_ROOT}/.tmp/native-ipfix-json.ZHRv13/native.sorted.json
+records=3
+sha256=16f87326ebda807198aa59c5e8e87eb79fca150334ceb57ab8f162e1f0567b62
+observed_fields=19
+undeclared_fields=none
+timestamp_unit=unix_milliseconds
+split_biflow=false

@@ -1,0 +1,139 @@
+{
+  "artefacts": {
+    "docker_cache_telemetry": {
+      "path": "verification/ipfix_json_parity/docker-cache-stats.txt",
+      "sha256": "97d4f7a5c1718f4737d60cc18516933709cf35bd420c1d7489ec742781b1ece1"
+    },
+    "docker_collector_log": {
+      "path": "verification/ipfix_json_parity/docker-ipfixcol2.log",
+      "sha256": "032962012226000cbfe1a4511dd8b0fd3791ca38284115cf5c84b08b198adbbc"
+    },
+    "docker_flow_output": {
+      "path": "verification/ipfix_json_parity/docker.sorted.json",
+      "sha256": "16f87326ebda807198aa59c5e8e87eb79fca150334ceb57ab8f162e1f0567b62"
+    },
+    "docker_ipfixprobe_log": {
+      "path": "verification/ipfix_json_parity/docker-ipfixprobe.log",
+      "sha256": "dbdad484c88bb528a3d42f5946632ecdc79e506dd4b6433a55881ea93f3a2c38"
+    },
+    "docker_schema_validation": {
+      "path": "verification/ipfix_json_parity/docker-schema-validation.log",
+      "sha256": "420e2039c875edcbd61487be36ee1686b312944bb153554fb7f25ad9151486e2"
+    },
+    "native_cache_telemetry": {
+      "path": "verification/ipfix_json_parity/native-cache-stats.txt",
+      "sha256": "97d4f7a5c1718f4737d60cc18516933709cf35bd420c1d7489ec742781b1ece1"
+    },
+    "native_collector_log": {
+      "path": "verification/ipfix_json_parity/native-ipfixcol2.log",
+      "sha256": "a2c12ad87aba3c249c929c43b1ce3d971704722e50367d2348e6fc26aaf16fba"
+    },
+    "native_flow_output": {
+      "path": "verification/ipfix_json_parity/native.sorted.json",
+      "sha256": "16f87326ebda807198aa59c5e8e87eb79fca150334ceb57ab8f162e1f0567b62"
+    },
+    "native_ipfixprobe_log": {
+      "path": "verification/ipfix_json_parity/native-ipfixprobe.log",
+      "sha256": "dbdad484c88bb528a3d42f5946632ecdc79e506dd4b6433a55881ea93f3a2c38"
+    },
+    "native_schema_validation": {
+      "path": "verification/ipfix_json_parity/native-schema-validation.log",
+      "sha256": "bdb9af3b28682ccdff95b17c20c3a3ea7f8e3479b9189f471c496f6fc8695056"
+    }
+  },
+  "container": {
+    "architecture": "arm64",
+    "base_image": "ubuntu:24.04",
+    "base_image_digest": "sha256:4fbb8e6a8395de5a7550b33509421a2bafbc0aab6c06ba2cef9ebffbc7092d90",
+    "created_at": "2026-07-14T13:08:27.625885337Z",
+    "image": "pcap2netflow-ipfixprobe:v1.4-dev-arm64",
+    "image_id": "sha256:1c60217a458044d56c101b15560c07a89a929d8718132234cf5f9ebea15204ff",
+    "operating_system": "linux"
+  },
+  "development_target": "1.4",
+  "git": {
+    "head_commit": "e9a446d64a0aa1fbe3ccd1f63d4908573722346f",
+    "working_tree_dirty": true
+  },
+  "host": {
+    "architecture": "aarch64",
+    "hostname": "DGX-1",
+    "kernel": "6.17.0-1014-nvidia",
+    "operating_system": "Ubuntu 24.04.4 LTS"
+  },
+  "input": {
+    "packet_count": 11,
+    "path": "tests/data/smoke.pcap",
+    "sha256": "04a8de9bd9d089db4bf1cfe1eb2667461eb9ec96e7f1f5e2b2defe0e2c50440c"
+  },
+  "interface": {
+    "collector_configuration": {
+      "listen_address": "127.0.0.1",
+      "listen_port": 4739,
+      "numeric_names": false,
+      "output_path_template": "__OUTPUT_DIR__",
+      "path": "config/ipfixcol2-tcp-json.xml",
+      "protocol": "raw",
+      "sha256": "c95d3e9cc7cc45f2a4b45e0aa8ccd4c77763ae6e68ba0940f8c2b58e6eb7576b",
+      "split_biflow": false,
+      "timestamp": "unix"
+    },
+    "collector_output": "JSON Lines",
+    "flow_schema": {
+      "additional_information_elements_allowed": true,
+      "contract_version": "1.0.0",
+      "id": "urn:pcap2netflow:ipfixcol2-biflow:v1",
+      "numeric_names": false,
+      "path": "schemas/ipfixcol2-biflow-v1.schema.json",
+      "sha256": "26a7fc2b4aaa5eeac7862ed455488d3e804bc1d5db994639a9f90dac4c32a43a",
+      "split_biflow": false,
+      "timestamp_serialization": "unix",
+      "timestamp_value_unit": "milliseconds"
+    },
+    "transport": "blocking IPFIX over TCP loopback"
+  },
+  "manifest_version": "1.0.0",
+  "pipeline_version": "1.4",
+  "recorded_at_utc": "2026-07-14T14:42:56Z",
+  "release_state": "development",
+  "results": {
+    "cache_telemetry_byte_identical": true,
+    "collector_log_byte_identical": false,
+    "docker_collision_count": 0,
+    "docker_records": 3,
+    "docker_total_exported_flows": 3,
+    "flow_output_sha256": "16f87326ebda807198aa59c5e8e87eb79fca150334ceb57ab8f162e1f0567b62",
+    "ipfixprobe_log_byte_identical": true,
+    "native_collision_count": 0,
+    "native_docker_byte_identical": true,
+    "native_records": 3,
+    "native_total_exported_flows": 3,
+    "observed_fields": 19,
+    "schema_validation_passed": true,
+    "split_biflow": false,
+    "timestamp_unit": "unix_milliseconds",
+    "undeclared_fields": []
+  },
+  "source_revisions": {
+    "ipfixcol2": {
+      "commit": "4fffd44fbe6ecfe7ae7ad88d2caf53f83a3dd1d0",
+      "json_plugin_version": "2.2.0",
+      "repository": "https://github.com/CESNET/ipfixcol2.git",
+      "tcp_plugin_version": "3.0.0",
+      "version": "2.8.0"
+    },
+    "ipfixprobe": {
+      "commit": "f0f16888c426eced7adeed8fc2158362aca1a271",
+      "repository": "https://github.com/CESNET/ipfixprobe.git",
+      "tag": "v5.7.0",
+      "version": "5.7.0"
+    },
+    "libfds": {
+      "commit": "0f148edede1743d6961527965930cf558e9a411e",
+      "repository": "https://github.com/CESNET/libfds.git",
+      "version": "0.6.0"
+    }
+  },
+  "stage": "P1d",
+  "status": "passed"
+}

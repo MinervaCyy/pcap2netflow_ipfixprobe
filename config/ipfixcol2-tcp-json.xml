@@ -1,0 +1,43 @@
+<ipfixcol2>
+  <inputPlugins>
+    <input>
+      <name>TCP loopback input</name>
+      <plugin>tcp</plugin>
+      <params>
+        <localPort>4739</localPort>
+        <localIPAddress>127.0.0.1</localIPAddress>
+      </params>
+    </input>
+  </inputPlugins>
+
+  <outputPlugins>
+    <output>
+      <name>JSON file output</name>
+      <plugin>json</plugin>
+      <params>
+        <tcpFlags>raw</tcpFlags>
+        <timestamp>unix</timestamp>
+        <protocol>raw</protocol>
+        <ignoreUnknown>false</ignoreUnknown>
+        <ignoreOptions>true</ignoreOptions>
+        <nonPrintableChar>true</nonPrintableChar>
+        <octetArrayAsUint>true</octetArrayAsUint>
+        <numericNames>false</numericNames>
+        <splitBiflow>false</splitBiflow>
+        <detailedInfo>false</detailedInfo>
+        <templateInfo>false</templateInfo>
+
+        <outputs>
+          <file>
+            <name>Local JSON files</name>
+            <path>__OUTPUT_DIR__</path>
+            <prefix>flows.</prefix>
+            <timeWindow>300</timeWindow>
+            <timeAlignment>no</timeAlignment>
+            <compression>none</compression>
+          </file>
+        </outputs>
+      </params>
+    </output>
+  </outputPlugins>
+</ipfixcol2>

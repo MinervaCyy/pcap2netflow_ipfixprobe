@@ -21,6 +21,7 @@ manifests/*
 !tests/output/.gitkeep
 !tests/logs/.gitkeep
 !manifests/.gitkeep
+!manifests/p1d_ipfix_json_parity.json
 
 # Python environments and caches
 .venv/
@@ -59,3 +60,7 @@ tests/telemetry-docker/
 !manifests/stage0_prerequisites.json
 
 !manifests/stage1_pilot_days.json
+
+# Local out-of-tree builds and transient integration-test state
+.build/
+.tmp/

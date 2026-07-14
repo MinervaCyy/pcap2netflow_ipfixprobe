@@ -1,0 +1,208 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:pcap2netflow:ipfixcol2-biflow:v1",
+  "title": "pcap2netflow IPFIXcol2 biflow record v1",
+  "description": "Versioned contract for one unsplit bidirectional flow exported by ipfixprobe over IPFIX/TCP and serialized by IPFIXcol2 as JSON.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "@type",
+    "iana:destinationTransportPort",
+    "iana:flowEndMicroseconds",
+    "iana:flowEndReason",
+    "iana:flowStartMicroseconds",
+    "iana:ingressInterface",
+    "iana:ipVersion",
+    "iana:octetDeltaCount",
+    "iana:packetDeltaCount",
+    "iana:protocolIdentifier",
+    "iana:sourceTransportPort",
+    "iana:tcpControlBits",
+    "iana@reverse:octetDeltaCount@reverse",
+    "iana@reverse:packetDeltaCount@reverse",
+    "iana@reverse:tcpControlBits@reverse"
+  ],
+  "properties": {
+    "@type": {
+      "type": "string",
+      "const": "ipfix.entry"
+    },
+    "iana:sourceIPv4Address": {
+      "type": "string",
+      "format": "ipv4"
+    },
+    "iana:destinationIPv4Address": {
+      "type": "string",
+      "format": "ipv4"
+    },
+    "iana:sourceIPv6Address": {
+      "type": "string",
+      "format": "ipv6"
+    },
+    "iana:destinationIPv6Address": {
+      "type": "string",
+      "format": "ipv6"
+    },
+    "iana:sourceMacAddress": {
+      "type": "string",
+      "pattern": "^[0-9A-Fa-f]{2}(:[0-9A-Fa-f]{2}){5}$"
+    },
+    "iana:destinationMacAddress": {
+      "type": "string",
+      "pattern": "^[0-9A-Fa-f]{2}(:[0-9A-Fa-f]{2}){5}$"
+    },
+    "iana:sourceTransportPort": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 65535
+    },
+    "iana:destinationTransportPort": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 65535
+    },
+    "iana:flowStartMicroseconds": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Unix timestamp in milliseconds. The IPFIX Information Element name is retained verbatim and is therefore misleading about the serialized unit."
+    },
+    "iana:flowEndMicroseconds": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Unix timestamp in milliseconds. The IPFIX Information Element name is retained verbatim and is therefore misleading about the serialized unit."
+    },
+    "iana:flowEndReason": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 255
+    },
+    "iana:ingressInterface": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "iana:ipVersion": {
+      "type": "integer",
+      "enum": [
+        4,
+        6
+      ]
+    },
+    "iana:octetDeltaCount": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "iana:packetDeltaCount": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "iana:protocolIdentifier": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 255
+    },
+    "iana:tcpControlBits": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 65535
+    },
+    "iana@reverse:octetDeltaCount@reverse": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "iana@reverse:packetDeltaCount@reverse": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "iana@reverse:tcpControlBits@reverse": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 65535
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "iana:ipVersion": {
+            "const": 4
+          }
+        },
+        "required": [
+          "iana:ipVersion"
+        ]
+      },
+      "then": {
+        "required": [
+          "iana:sourceIPv4Address",
+          "iana:destinationIPv4Address"
+        ],
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "iana:sourceIPv6Address"
+              ]
+            },
+            {
+              "required": [
+                "iana:destinationIPv6Address"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "iana:ipVersion": {
+            "const": 6
+          }
+        },
+        "required": [
+          "iana:ipVersion"
+        ]
+      },
+      "then": {
+        "required": [
+          "iana:sourceIPv6Address",
+          "iana:destinationIPv6Address"
+        ],
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "iana:sourceIPv4Address"
+              ]
+            },
+            {
+              "required": [
+                "iana:destinationIPv4Address"
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "x-pcap2netflow": {
+    "contract_version": "1.0.0",
+    "transport": "blocking IPFIX over TCP loopback",
+    "collector": "IPFIXcol2 JSON output plugin",
+    "numeric_names": false,
+    "split_biflow": false,
+    "timestamp_serialization": "unix",
+    "timestamp_value_unit": "milliseconds",
+    "timestamp_name_unit": "microseconds",
+    "additional_information_elements_allowed": true,
+    "reverse_field_names": [
+      "iana@reverse:octetDeltaCount@reverse",
+      "iana@reverse:packetDeltaCount@reverse",
+      "iana@reverse:tcpControlBits@reverse"
+    ],
+    "optional_fields": [
+      "iana:sourceMacAddress",
+      "iana:destinationMacAddress"
+    ]
+  }
+}

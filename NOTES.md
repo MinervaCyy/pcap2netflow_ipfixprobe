@@ -2,13 +2,51 @@
 
 ## Current scope
 
-The repository currently covers prerequisite validation only:
+The repository currently covers:
 
-- P1a: native ARM64 build and smoke test;
-- P1b: Docker ARM64 build and smoke test; and
-- P1c: native-versus-Docker equivalence.
+- P1a: native ARM64 ipfixprobe build and text-output smoke test;
+- P1b: Docker ARM64 ipfixprobe build and text-output smoke test;
+- P1c: native-versus-Docker text-output equivalence; and
+- P1d: native-versus-Docker IPFIX-to-JSON schema and byte-parity validation.
 
-Dataset conversion, label alignment, daily processing, and final export validation are not yet implemented.
+The v1.4-dev output implementation is complete:
+
+    ipfixprobe
+    -> blocking IPFIX over TCP loopback
+    -> IPFIXcol2
+    -> JSON Lines
+
+Native and Docker builds, collector lifecycle handling, flow-count
+cross-checks, collision checks, schema validation, deterministic sorted-output
+comparison, and provenance publication have all passed.
+
+The implementation is versioned 1.4 but remains in development until an
+annotated `v1.4` tag is created. The tag is the release boundary; no separate
+freeze commit or release ceremony is required.
+
+The P1a-P1c manifests remain historical v1.3 evidence and must not be rewritten
+as v1.4 results.
+
+Dataset conversion, label alignment, daily processing, and final export
+validation are not yet implemented.
+
+## v1.4-dev validation commands
+
+The reproducible validation sequence is:
+
+    ./scripts/00_build_native_ipfixprobe.sh
+    ./scripts/00_build_native_collector.sh
+    ./scripts/00_build_docker_image.sh
+    ./scripts/01_native_ipfix_json_smoke.sh
+    ./scripts/02_docker_ipfix_json_parity.sh
+
+The parity test also invokes the versioned flow validator. Successful evidence
+can be published with `scripts/03_publish_ipfix_json_verification.py`.
+
+The fixed synthetic JSON baseline contains three biflow records and has
+SHA-256:
+
+    16f87326ebda807198aa59c5e8e87eb79fca150334ceb57ab8f162e1f0567b62
 
 ## Important operational notes
 
@@ -27,3 +65,52 @@ Dataset conversion, label alignment, daily processing, and final export validati
 - inactive timeout: 65 seconds
 
 The FlowEndReason:Collision counter must remain zero.
+
+## Output interface notes
+
+The ipfixprobe text output is retained for diagnostics and smoke testing only.
+
+In the tested ipfixprobe v5.7.0 build, the text header describes seven logical
+columns:
+
+    mac conversation packets bytes tcp-flags time extensions
+
+When extensions are empty, records contain only six whitespace-separated
+fields. The conversation field also combines addresses, ports, and direction
+markers into one string, which is unsuitable as the public machine-readable
+interface and can become ambiguous for IPv6.
+
+UniRec was investigated but is intentionally not implemented. The format is
+technically strong and provides typed fields and native IP address handling.
+However, enabling it would require rebuilding the already validated ipfixprobe
+binary, source-building the NEMEA dependency chain on ARM64, and adding either
+pytrap or Nemea-Modules for consumption.
+
+The selected interface is:
+
+    ipfixprobe
+    -> blocking IPFIX over TCP
+    -> IPFIXcol2
+    -> JSON
+
+The upstream IPFIXcol2 JSON plugin links librdkafka even when only local file
+output is used. The project accepts `librdkafka-dev` as an inert build
+dependency and does not require a Kafka service, broker, port, or runtime
+configuration.
+
+See `docs/adr/0001-output-interface.md` for the complete decision record.
+
+## JSON schema warnings
+
+With the tested JSON configuration:
+
+- `timestamp=unix` emits Unix timestamps in milliseconds, even when the
+  Information Element name contains `Microseconds`;
+- reverse fields use literal names such as
+  `iana@reverse:octetDeltaCount@reverse`;
+- `splitBiflow=false` is mandatory because downstream labeling and count checks
+  assume one record per bidirectional flow;
+- parsers must use an explicit required-field map and fail loudly when required
+  fields are absent; and
+- deterministic comparisons are performed on sorted JSON record content, not
+  rotated filenames or original write order.

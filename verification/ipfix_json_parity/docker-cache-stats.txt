@@ -1,0 +1,14 @@
+FlowCacheUsage:                 0.00 (%)
+FlowEndReason:ActiveTimeout:    0
+FlowEndReason:Collision:        0
+FlowEndReason:EndOfFlow:        0
+FlowEndReason:Forced:           3
+FlowEndReason:InactiveTimeout:  0
+FlowRecordStats:11-20packets:   0
+FlowRecordStats:1packet:        1
+FlowRecordStats:2-5packets:     1
+FlowRecordStats:21-50packets:   0
+FlowRecordStats:51-plusPackets: 0
+FlowRecordStats:6-10packets:    1
+FlowsInCache:                   0
+TotalExportedFlows:             3
