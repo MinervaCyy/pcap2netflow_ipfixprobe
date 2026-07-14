@@ -11,7 +11,15 @@ NATIVE_SCRIPT="$ROOT/scripts/01_native_ipfix_json_smoke.sh"
 CONFIG_TEMPLATE="$ROOT/config/ipfixcol2-tcp-json.xml"
 FLOW_SCHEMA="$ROOT/schemas/ipfixcol2-biflow-v1.schema.json"
 VALIDATOR="$ROOT/scripts/validate_ipfix_json.py"
-PCAP="$ROOT/tests/data/smoke.pcap"
+
+DEFAULT_PCAP="$ROOT/tests/data/smoke.pcap"
+
+if [[ "$#" -gt 1 ]]; then
+    echo "Usage: $0 [PCAP_PATH]" >&2
+    exit 2
+fi
+
+PCAP="${1:-$DEFAULT_PCAP}"
 
 required_paths=(
     "$NATIVE_SCRIPT"
@@ -27,6 +35,15 @@ for required_path in "${required_paths[@]}"; do
         exit 1
     fi
 done
+
+PCAP="$(readlink -f -- "$PCAP")"
+DEFAULT_PCAP="$(readlink -f -- "$DEFAULT_PCAP")"
+
+if [[ "$PCAP" == "$DEFAULT_PCAP" ]]; then
+    VALIDATION_MODE="golden"
+else
+    VALIDATION_MODE="invariant"
+fi
 
 if docker info >/dev/null 2>&1; then
     DOCKER=(docker)
@@ -54,34 +71,19 @@ if [[ "$image_architecture" != "$EXPECTED_ARCHITECTURE" ]]; then
     exit 1
 fi
 
-native_output="$("$NATIVE_SCRIPT")"
-printf '%s\n' "$native_output"
+source "$NATIVE_SCRIPT"
+validate_native "$PCAP"
 
-native_sorted_json="$(
-    printf '%s\n' "$native_output" |
-    awk -F= '
-        $1 == "sorted_json" {
-            print substr($0, index($0, "=") + 1)
-        }
-    '
-)"
+native_sorted_json="$NATIVE_SORTED_JSON"
+native_hash="$NATIVE_JSON_HASH"
 
-native_hash="$(
-    printf '%s\n' "$native_output" |
-    awk -F= '
-        $1 == "sha256" {
-            print $2
-        }
-    '
-)"
-
-if [[ -z "$native_sorted_json" ]] ||
-   [[ ! -f "$native_sorted_json" ]]; then
-    echo "ERROR: native smoke did not provide a valid sorted JSON file" >&2
+if [[ ! -f "$native_sorted_json" ]]; then
+    echo "ERROR: native validation did not produce sorted JSON" >&2
     exit 1
 fi
 
-if [[ "$native_hash" != "$EXPECTED_SMOKE_SHA256" ]]; then
+if [[ "$VALIDATION_MODE" == "golden" ]] &&
+   [[ "$native_hash" != "$EXPECTED_SMOKE_SHA256" ]]; then
     echo "ERROR: native JSON SHA-256 changed" >&2
     echo "expected=$EXPECTED_SMOKE_SHA256" >&2
     echo "actual=$native_hash" >&2
@@ -131,8 +133,9 @@ PY_CONFIG
     --device /dev/fuse \
     --cap-add SYS_ADMIN \
     --security-opt apparmor=unconfined \
+    -e VALIDATION_MODE="$VALIDATION_MODE" \
     --entrypoint /bin/bash \
-    -v "$PCAP:/data/input/smoke.pcap:ro" \
+    -v "$PCAP:/data/input/input.pcap:ro" \
     -v "$RUNTIME_CONFIG:/config/ipfixcol2.xml:ro" \
     -v "$JSON_DIR:/run/ipfix-json" \
     -v "$RUN_DIR:/data/output" \
@@ -201,7 +204,7 @@ PY_CONFIG
         /usr/local/bin/ipfixprobe \
             --plugins-path /usr/local/lib/ipfixprobe \
             --telemetry /tmp/telemetry \
-            -i "pcap;file=/data/input/smoke.pcap" \
+            -i "pcap;file=/data/input/input.pcap" \
             -s "cache;size=17;line=4;active=300;inactive=65" \
             -o "ipfix;host=127.0.0.1;port=4739" \
             >/tmp/ipfixprobe.log 2>&1 &
@@ -214,7 +217,7 @@ PY_CONFIG
 
             if [[ -f "$stats_path" ]] &&
                grep -q "^TotalExportedFlows:" "$stats_path"; then
-                cp "$stats_path" /tmp/cache-stats.txt
+                cp --remove-destination -- "$stats_path" /tmp/cache-stats.txt
                 stats_found=1
                 break
             fi
@@ -244,13 +247,15 @@ PY_CONFIG
             "^FlowEndReason:Collision:[[:space:]]+0$" \
             /tmp/cache-stats.txt
 
-        grep -qE \
-            "^TotalExportedFlows:[[:space:]]+3$" \
-            /tmp/cache-stats.txt
+        if [[ "$VALIDATION_MODE" == "golden" ]]; then
+            grep -qE \
+                "^TotalExportedFlows:[[:space:]]+3$" \
+                /tmp/cache-stats.txt
 
-        grep -qE \
-            "^SUM[[:space:]]+11[[:space:]]+11[[:space:]]+588[[:space:]]+0" \
-            /tmp/ipfixprobe.log
+            grep -qE \
+                "^SUM[[:space:]]+11[[:space:]]+11[[:space:]]+588[[:space:]]+0" \
+                /tmp/ipfixprobe.log
+        fi
 
         expected_records="$(
             awk -F: '\''
@@ -308,6 +313,61 @@ for output_path in \
     fi
 done
 
+docker_input_dropped="$(
+    awk '
+        /^Input stats:/ {
+            section="input"
+            next
+        }
+        /^Output stats:/ {
+            section="output"
+            next
+        }
+        section == "input" && $1 == "SUM" {
+            print $5
+            exit
+        }
+    ' "$PROBE_LOG"
+)"
+
+if [[ ! "$docker_input_dropped" =~ ^[0-9]+$ ]]; then
+    echo "ERROR: Docker input dropped counter is missing or invalid" >&2
+    exit 1
+fi
+
+if [[ "$docker_input_dropped" -ne 0 ]]; then
+    echo "ERROR: Docker input dropped counter is non-zero:"          "$docker_input_dropped" >&2
+    exit 1
+fi
+
+docker_output_dropped="$(
+    awk '
+        /^Output stats:/ {
+            section="output"
+            next
+        }
+        section == "output" && $1 ~ /^[0-9]+$/ {
+            total += $5
+            found=1
+        }
+        END {
+            if (found) {
+                print total
+            }
+        }
+    ' "$PROBE_LOG"
+)"
+
+if [[ ! "$docker_output_dropped" =~ ^[0-9]+$ ]]; then
+    echo "ERROR: Docker output dropped counter is missing or invalid" >&2
+    exit 1
+fi
+
+if [[ "$docker_output_dropped" -ne 0 ]]; then
+    echo "ERROR: Docker output dropped counter is non-zero:"          "$docker_output_dropped" >&2
+    exit 1
+fi
+
 docker_records="$(wc -l <"$DOCKER_SORTED_JSON")"
 docker_records="${docker_records//[[:space:]]/}"
 
@@ -316,17 +376,19 @@ docker_hash="$(
     awk '{print $1}'
 )"
 
-if [[ "$docker_records" -ne 3 ]]; then
-    echo "ERROR: expected 3 Docker JSON records," \
-         "found $docker_records" >&2
-    exit 1
-fi
+if [[ "$VALIDATION_MODE" == "golden" ]]; then
+    if [[ "$docker_records" -ne 3 ]]; then
+        echo "ERROR: expected 3 Docker JSON records," \
+             "found $docker_records" >&2
+        exit 1
+    fi
 
-if [[ "$docker_hash" != "$EXPECTED_SMOKE_SHA256" ]]; then
-    echo "ERROR: Docker JSON SHA-256 changed" >&2
-    echo "expected=$EXPECTED_SMOKE_SHA256" >&2
-    echo "actual=$docker_hash" >&2
-    exit 1
+    if [[ "$docker_hash" != "$EXPECTED_SMOKE_SHA256" ]]; then
+        echo "ERROR: Docker JSON SHA-256 changed" >&2
+        echo "expected=$EXPECTED_SMOKE_SHA256" >&2
+        echo "actual=$docker_hash" >&2
+        exit 1
+    fi
 fi
 
 "$VALIDATOR" \
@@ -345,8 +407,12 @@ if ! cmp -s "$native_sorted_json" "$DOCKER_SORTED_JSON"; then
 fi
 
 echo "Docker IPFIX-to-JSON parity test passed"
+echo "mode=$VALIDATION_MODE"
+echo "pcap=$PCAP"
 echo "records=$docker_records"
 echo "collision=0"
+echo "input_dropped=$docker_input_dropped"
+echo "output_dropped=$docker_output_dropped"
 echo "sha256=$docker_hash"
 echo "image=$IMAGE"
 echo "image_id=$image_id"
