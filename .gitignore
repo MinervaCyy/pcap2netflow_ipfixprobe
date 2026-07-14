@@ -55,3 +55,5 @@ tests/telemetry/
 !manifests/p1c_native_docker_comparison.json
 
 tests/telemetry-docker/
+
+!manifests/stage0_prerequisites.json
