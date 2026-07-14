@@ -1,0 +1,25 @@
+{
+  "pipeline_version": "1.3",
+  "stage": "P1c",
+  "status": "passed",
+  "comparison": {
+    "native_manifest": "manifests/p1a_native_smoke.json",
+    "docker_manifest": "manifests/p1b_docker_smoke.json",
+    "same_ipfixprobe_commit": true,
+    "same_configuration": true,
+    "same_schema": true,
+    "same_flow_count": true,
+    "flow_output_byte_identical": true,
+    "runtime_log_byte_identical": true,
+    "cache_telemetry_byte_identical": true,
+    "native_collision_count": 0,
+    "docker_collision_count": 0
+  },
+  "shared_checksums": {
+    "flow_output_sha256": "7a09fb9d32959b59b15576ab0c604d6e30a09ba0a4e50f8e444c29d78064f438",
+    "runtime_log_sha256": "dbdad484c88bb528a3d42f5946632ecdc79e506dd4b6433a55881ea93f3a2c38",
+    "cache_telemetry_sha256": "97d4f7a5c1718f4737d60cc18516933709cf35bd420c1d7489ec742781b1ece1"
+  },
+  "result": "Native DGX-1 and Docker ARM64 outputs are equivalent for the synthetic smoke PCAP.",
+  "recorded_at_utc": "2026-07-14T08:28:58Z"
+}

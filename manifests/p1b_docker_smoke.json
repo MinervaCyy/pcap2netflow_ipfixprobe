@@ -1,0 +1,60 @@
+{
+  "pipeline_version": "1.3",
+  "stage": "P1b",
+  "status": "passed",
+  "execution_environment": "docker",
+  "host": {
+    "hostname": "DGX-1",
+    "host_architecture": "aarch64"
+  },
+  "container": {
+    "image": "pcap2netflow-ipfixprobe:p1b-arm64",
+    "image_id": "sha256:9b5eeb80bca185c0281b31edf47ca9b2691dc2307cfb602e1479873abd306635",
+    "architecture": "arm64",
+    "operating_system": "linux",
+    "created_at": "2026-07-14T08:25:02.947631624Z",
+    "base_image": "ubuntu:24.04",
+    "base_image_digest": "sha256:4fbb8e6a8395de5a7550b33509421a2bafbc0aab6c06ba2cef9ebffbc7092d90"
+  },
+  "ipfixprobe": {
+    "version": "5.7.0",
+    "tag": "v5.7.0",
+    "commit": "f0f16888c426eced7adeed8fc2158362aca1a271"
+  },
+  "configuration": {
+    "input_plugin": "pcap",
+    "storage_plugin": "cache",
+    "output_plugin": "text",
+    "process_plugins": [],
+    "cache_size_exponent": 17,
+    "cache_entries": 131072,
+    "cache_line_exponent": 4,
+    "cache_line_entries": 16,
+    "active_timeout_seconds": 300,
+    "inactive_timeout_seconds": 65,
+    "telemetry_enabled": true
+  },
+  "results": {
+    "parsed_packets": 11,
+    "exported_biflows": 3,
+    "input_dropped_packets": 0,
+    "output_dropped_flows": 0,
+    "flow_end_reason_collision": 0,
+    "flow_end_reason_forced": 3
+  },
+  "artefacts": {
+    "flow_output": {
+      "path": "tests/output/docker_smoke_telemetry.csv",
+      "sha256": "7a09fb9d32959b59b15576ab0c604d6e30a09ba0a4e50f8e444c29d78064f438"
+    },
+    "runtime_log": {
+      "path": "tests/logs/docker_smoke_telemetry.log",
+      "sha256": "dbdad484c88bb528a3d42f5946632ecdc79e506dd4b6433a55881ea93f3a2c38"
+    },
+    "cache_telemetry": {
+      "path": "tests/logs/docker_smoke_cache_stats.txt",
+      "sha256": "97d4f7a5c1718f4737d60cc18516933709cf35bd420c1d7489ec742781b1ece1"
+    }
+  },
+  "recorded_at_utc": "2026-07-14T08:28:58Z"
+}

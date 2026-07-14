@@ -1,0 +1,57 @@
+# Large datasets and generated artefacts
+raw/*
+clean/*
+work/*
+output/*
+
+# Preserve directory placeholders
+!raw/.gitkeep
+!clean/.gitkeep
+!work/.gitkeep
+!output/.gitkeep
+
+# Smoke-test generated artefacts
+tests/data/*.pcap
+tests/output/*
+tests/logs/*
+manifests/*
+
+# Preserve test and manifest placeholders
+!tests/data/.gitkeep
+!tests/output/.gitkeep
+!tests/logs/.gitkeep
+!manifests/.gitkeep
+
+# Python environments and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Native build artefacts and cloned dependencies
+build/
+_build/
+third_party/
+ipfixprobe/
+
+# Local environment files
+.env
+*.local
+
+# Editors and operating systems
+.vscode/
+.idea/
+.DS_Store
+
+# Track authoritative prerequisite evidence
+!manifests/p1a_native_smoke.json
+
+# Native staged installation and temporary telemetry mount
+.stage/
+tests/telemetry/
+
+!manifests/p1b_docker_smoke.json
+!manifests/p1c_native_docker_comparison.json
+
+tests/telemetry-docker/
