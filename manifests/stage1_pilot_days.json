@@ -1,0 +1,67 @@
+{
+  "pipeline_version": "1.3",
+  "stage": "Stage 1",
+  "status": "planned",
+  "pilot_days": [
+    {
+      "order": 1,
+      "day": "Wednesday-14-02-2018",
+      "coverage": [
+        "FTP-BruteForce - Attempted",
+        "SSH-BruteForce",
+        "SSH-BruteForce - Attempted"
+      ],
+      "role": "non-HTTP brute-force and direction/biflow pilot",
+      "timezone_anchor": "SSH-BruteForce start"
+    },
+    {
+      "order": 2,
+      "day": "Thursday-15-02-2018",
+      "coverage": [
+        "DoS GoldenEye",
+        "DoS GoldenEye - Attempted",
+        "DoS Slowloris",
+        "DoS Slowloris - Attempted"
+      ],
+      "role": "DoS and split-segment pilot",
+      "timezone_anchor": "DoS GoldenEye start"
+    },
+    {
+      "order": 3,
+      "day": "Thursday-22-02-2018",
+      "coverage": [
+        "Web Attack - SQL",
+        "Web Attack - XSS",
+        "Web Attack - Brute Force",
+        "attempted variants"
+      ],
+      "role": "rare and subtle web-attack pilot",
+      "timezone_anchor": "Web Attack - Brute Force start",
+      "validation_mode": "exact or near-exact per-variant count comparison"
+    }
+  ],
+  "phase_b_first_days": [
+    {
+      "day": "Tuesday-20-02-2018",
+      "role": "DDoS and multi-attacker regression"
+    },
+    {
+      "day": "Friday-23-02-2018",
+      "role": "web-rule regression"
+    }
+  ],
+  "attempted_attack_policy": "Preserve attempted attacks as separate first-class dataset labels; merge or exclude only in downstream training configuration.",
+  "infiltration_policy": "Defer infiltration days to Phase B; pre-register that exclusion remains possible if contested ground truth cannot be validated.",
+  "timestamp_basis": "UTC",
+  "download_policy": "Download PCAP directories only; process one day at a time; record S3 object names and sizes before transfer.",
+  "retention_policy": "For pilot days, retain cleaned or merged PCAPs until 4V packet tracing is complete. For Phase B days, delete raw PCAPs after Stage 5a passes.",
+  "pre_download_freeze": [
+    "ipfixprobe output schema contract",
+    "rules_2018.yaml schema",
+    "corrected expected per-class counts",
+    "per-day timezone anchors",
+    "direction convention",
+    "pilot PCAP retention amendment",
+    "rare-class validation mode"
+  ]
+}

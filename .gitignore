@@ -57,3 +57,5 @@ tests/telemetry/
 tests/telemetry-docker/
 
 !manifests/stage0_prerequisites.json
+
+!manifests/stage1_pilot_days.json
