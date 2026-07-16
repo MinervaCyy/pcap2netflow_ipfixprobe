@@ -1,0 +1,99 @@
+{
+  "manifest_version": "1.0",
+  "pipeline_version": "1.4",
+  "release_state": "development",
+  "role": "robustness-gate, not-golden",
+  "status": "passed",
+  "validated_commit": "72efddd789ea49348633956cf3172ceb5150980b",
+  "capture": {
+    "name": "bigFlows.pcap",
+    "tracked_in_git": false,
+    "source_url": "https://s3.amazonaws.com/tcpreplay-pcap-files/bigFlows.pcap",
+    "retrieved_utc": "2026-07-16T03:49:34Z",
+    "size_bytes": 368083648,
+    "sha256": "2b630291cc848c79949e12a54edebe07d20f644747db28899ac4d568c42dc141",
+    "file_type": "pcap",
+    "encapsulation": "Ethernet",
+    "timestamp_precision": "microseconds",
+    "packet_count": 791615,
+    "captured_data_bytes": 355417784,
+    "capture_duration_seconds": 299.999827,
+    "first_packet_time_capinfos": "2013-02-26 22:02:35.953172",
+    "last_packet_time_capinfos": "2013-02-26 22:07:35.952999",
+    "strict_time_order": true,
+    "interface_count": 1,
+    "published_reference": {
+      "flow_count": 40686,
+      "application_count": 132,
+      "flow_count_caveat": "Tcpreplay's published flow count uses its own flow definition. This pipeline exports bidirectional flows with active timeout 300 seconds and inactive timeout 65 seconds, so 40,686 is an order-of-magnitude anchor only and must never be asserted as an expected output count."
+    }
+  },
+  "pipeline": {
+    "transport": "blocking IPFIX over TCP loopback",
+    "collector_output": "IPFIXcol2 JSON Lines",
+    "split_biflow": false,
+    "numeric_names": false,
+    "cache": {
+      "size_exponent": 17,
+      "line_exponent": 4,
+      "active_timeout_seconds": 300,
+      "inactive_timeout_seconds": 65
+    },
+    "versions": {
+      "ipfixprobe": {
+        "version": "5.7.0",
+        "commit": "f0f16888c426eced7adeed8fc2158362aca1a271"
+      },
+      "libfds": {
+        "version": "0.6.0",
+        "commit": "0f148edede1743d6961527965930cf558e9a411e"
+      },
+      "ipfixcol2": {
+        "version": "2.8.0",
+        "commit": "4fffd44fbe6ecfe7ae7ad88d2caf53f83a3dd1d0"
+      },
+      "ipfixcol2_tcp_plugin": "3.0.0",
+      "ipfixcol2_json_plugin": "2.2.0"
+    },
+    "docker": {
+      "image": "pcap2netflow-ipfixprobe:v1.4-dev-arm64",
+      "image_id": "sha256:1c60217a458044d56c101b15560c07a89a929d8718132234cf5f9ebea15204ff",
+      "architecture": "arm64",
+      "base_image": "ubuntu:24.04",
+      "base_image_digest": "sha256:4fbb8e6a8395de5a7550b33509421a2bafbc0aab6c06ba2cef9ebffbc7092d90"
+    }
+  },
+  "results": {
+    "native_run_1": {
+      "records": 29034,
+      "sorted_json_sha256": "8208601785b679a27937df75e2756cc553b53db2e3abee6df99ab82882d8a6cc",
+      "export_duration_ms": 318,
+      "collision_count": 0,
+      "input_dropped": 0,
+      "output_dropped": 0,
+      "schema_validation": "passed"
+    },
+    "native_run_2": {
+      "records": 29034,
+      "sorted_json_sha256": "8208601785b679a27937df75e2756cc553b53db2e3abee6df99ab82882d8a6cc",
+      "export_duration_ms": 340,
+      "collision_count": 0,
+      "input_dropped": 0,
+      "output_dropped": 0
+    },
+    "native_repeat_determinism": "byte-identical",
+    "docker_run": {
+      "records": 29034,
+      "sorted_json_sha256": "8208601785b679a27937df75e2756cc553b53db2e3abee6df99ab82882d8a6cc",
+      "export_duration_ms": 304,
+      "collision_count": 0,
+      "input_dropped": 0,
+      "output_dropped": 0,
+      "schema_validation": "passed"
+    },
+    "native_docker_parity": "byte-identical"
+  },
+  "evidence_logs": {
+    "clean_gate_log": ".tmp/robustness-bigflows-docker-clean.log"
+  }
+}

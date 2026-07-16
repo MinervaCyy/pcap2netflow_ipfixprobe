@@ -114,3 +114,26 @@ With the tested JSON configuration:
   fields are absent; and
 - deterministic comparisons are performed on sorted JSON record content, not
   rotated filenames or original write order.
+
+## v1.4 robustness gate
+
+The complete Tcpreplay `bigFlows.pcap` capture passed the v1.4 robustness
+gate on DGX Spark ARM64. Provenance, version pins, capture metadata, run
+durations, record counts, hashes, determinism results, and native/Docker parity
+are recorded in:
+
+    manifests/robustness_bigflows_v1.4.json
+
+The published Tcpreplay flow count is only an order-of-magnitude reference:
+this pipeline exports bidirectional flows with a 300-second active timeout and
+a 65-second inactive timeout, so equality with the published count is not
+asserted.
+
+An earlier characterization of `smallFlows.pcap` as real traffic was
+incorrect. Tcpreplay describes it as a synthetic combination of captures;
+`bigFlows.pcap` is the real busy-network capture used for this gate.
+
+Engineering decision rule: when patch complexity is greater than or equal to
+refactor complexity, regression tests exist, and there are no downstream
+dependents, prefer the clearer refactor. This rule motivated replacing the
+recursive invariant-run implementation with the function-based design.

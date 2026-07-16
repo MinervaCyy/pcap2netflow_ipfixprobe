@@ -64,3 +64,4 @@ tests/telemetry-docker/
 # Local out-of-tree builds and transient integration-test state
 .build/
 .tmp/
+!manifests/robustness_bigflows_v1.4.json
