@@ -137,3 +137,21 @@ Engineering decision rule: when patch complexity is greater than or equal to
 refactor complexity, regression tests exist, and there are no downstream
 dependents, prefer the clearer refactor. This rule motivated replacing the
 recursive invariant-run implementation with the function-based design.
+
+## v1.4 post-release closure
+
+The v1.4 instrumentation phase is complete. The Git tag, robustness manifest,
+golden and invariant validation, and complete bigFlows gate are closed with no
+known correctness issues.
+
+A local Docker release alias was added:
+
+    pcap2netflow-ipfixprobe:v1.4-arm64
+
+It points to the same ARM64 image as `v1.4-dev-arm64`:
+
+    sha256:1c60217a458044d56c101b15560c07a89a929d8718132234cf5f9ebea15204ff
+
+This alias is local to DGX-1 unless it is later pushed to a container registry.
+The next workstream begins with the three dataset freezes: the 2018 rules
+schema, DistriNet expected counts, and pilot-day timezone anchors.
