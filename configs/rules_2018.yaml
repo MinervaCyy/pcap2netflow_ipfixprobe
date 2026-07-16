@@ -1,0 +1,363 @@
+{
+  "schema_version": "1.0",
+  "dataset": "CSE-CIC-IDS-2018 corrected CICFlowMeter export",
+  "source": {
+    "repository": "https://github.com/GintsEngelen/CNS2022_Code.git",
+    "commit": "f0ce502818e59e6cd062720ab2286c5ff6f2bdec",
+    "notebook": "Labelling/CICIDS2018_labelling_fixed_CICFlowMeter.ipynb"
+  },
+  "serialization_note": "This file uses JSON syntax, which is valid YAML 1.2.",
+  "semantics": {
+    "timestamp_unit": "nanoseconds since Unix epoch",
+    "timestamp_timezone": "UTC",
+    "interval_bounds": "inclusive",
+    "rule_application": "ordered",
+    "later_rule_overwrites_earlier_label": true,
+    "unmatched_label": "BENIGN",
+    "initial_attempted_category": -1,
+    "payload_filter_definition": {
+      "field": "Total Length of Fwd Packet",
+      "operator": "==",
+      "value": 0
+    },
+    "preprocessing": [
+      "Replace literal Infinity with null.",
+      "Parse Timestamp as pandas datetime.",
+      "Coerce non-identity and non-label columns to numeric.",
+      "Drop rows containing null values."
+    ],
+    "artifact_flow_override": {
+      "field": "Flow ID",
+      "value": "8.0.6.4-8.6.0.1-0-0-0",
+      "label": "BENIGN"
+    }
+  },
+  "rule_schema": {
+    "required": [
+      "order",
+      "id",
+      "label",
+      "start_ns",
+      "end_ns",
+      "src_ips",
+      "dst_ips",
+      "dst_ports",
+      "attempted_category",
+      "payload_filter",
+      "additional_filter"
+    ],
+    "additional_filter_types": [
+      "none",
+      "all_of",
+      "any_of"
+    ],
+    "condition_fields": [
+      "field",
+      "operator",
+      "value"
+    ],
+    "supported_operators": [
+      "==",
+      "<",
+      ">",
+      ">="
+    ]
+  },
+  "days": [
+    {
+      "day": "Wednesday-14-02-2018",
+      "notes": [],
+      "rules": [
+        {
+          "order": 1,
+          "id": "wed_ftp_attempted_primary",
+          "label": "FTP-BruteForce - Attempted",
+          "start_ns": 1518618806000000000,
+          "end_ns": 1518624631000000000,
+          "src_ips": [
+            "18.221.219.4"
+          ],
+          "dst_ips": [
+            "172.31.69.25"
+          ],
+          "dst_ports": null,
+          "attempted_category": 1,
+          "payload_filter": false,
+          "additional_filter": null
+        },
+        {
+          "order": 2,
+          "id": "wed_ftp_attempted_accidental_launch",
+          "label": "FTP-BruteForce - Attempted",
+          "start_ns": 1518631281199541000,
+          "end_ns": 1518631281502585000,
+          "src_ips": [
+            "13.58.98.64"
+          ],
+          "dst_ips": [
+            "172.31.69.25"
+          ],
+          "dst_ports": [
+            21
+          ],
+          "attempted_category": 4,
+          "payload_filter": false,
+          "additional_filter": null
+        },
+        {
+          "order": 3,
+          "id": "wed_ssh_bruteforce",
+          "label": "SSH-BruteForce",
+          "start_ns": 1518631310000000000,
+          "end_ns": 1518636750000000000,
+          "src_ips": [
+            "13.58.98.64"
+          ],
+          "dst_ips": [
+            "172.31.69.25"
+          ],
+          "dst_ports": [
+            22
+          ],
+          "attempted_category": -1,
+          "payload_filter": false,
+          "additional_filter": null
+        },
+        {
+          "order": 4,
+          "id": "wed_ssh_bruteforce_payload_attempted",
+          "label": "SSH-BruteForce - Attempted",
+          "start_ns": 1518631310000000000,
+          "end_ns": 1518636750000000000,
+          "src_ips": [
+            "13.58.98.64"
+          ],
+          "dst_ips": [
+            "172.31.69.25"
+          ],
+          "dst_ports": [
+            22
+          ],
+          "attempted_category": 0,
+          "payload_filter": true,
+          "additional_filter": null
+        }
+      ]
+    },
+    {
+      "day": "Thursday-15-02-2018",
+      "notes": [],
+      "rules": [
+        {
+          "order": 1,
+          "id": "thu_goldeneye",
+          "label": "DoS GoldenEye",
+          "start_ns": 1518701262000000000,
+          "end_ns": 1518703905000000000,
+          "src_ips": [
+            "18.219.211.138"
+          ],
+          "dst_ips": [
+            "172.31.69.25"
+          ],
+          "dst_ports": null,
+          "attempted_category": -1,
+          "payload_filter": false,
+          "additional_filter": {
+            "type": "any_of",
+            "conditions": [
+              {
+                "field": "Fwd RST Flags",
+                "operator": "==",
+                "value": 0
+              },
+              {
+                "field": "Flow Duration",
+                "operator": ">=",
+                "value": 5050000
+              }
+            ]
+          }
+        },
+        {
+          "order": 2,
+          "id": "thu_goldeneye_attempted_short_rst",
+          "label": "DoS GoldenEye - Attempted",
+          "start_ns": 1518701262000000000,
+          "end_ns": 1518703905000000000,
+          "src_ips": [
+            "18.219.211.138"
+          ],
+          "dst_ips": [
+            "172.31.69.25"
+          ],
+          "dst_ports": null,
+          "attempted_category": 4,
+          "payload_filter": false,
+          "additional_filter": {
+            "type": "all_of",
+            "conditions": [
+              {
+                "field": "Fwd RST Flags",
+                "operator": ">",
+                "value": 0
+              },
+              {
+                "field": "Flow Duration",
+                "operator": "<",
+                "value": 5050000
+              }
+            ]
+          }
+        },
+        {
+          "order": 3,
+          "id": "thu_goldeneye_attempted_bwd_rst",
+          "label": "DoS GoldenEye - Attempted",
+          "start_ns": 1518701262000000000,
+          "end_ns": 1518703905000000000,
+          "src_ips": [
+            "18.219.211.138"
+          ],
+          "dst_ips": [
+            "172.31.69.25"
+          ],
+          "dst_ports": null,
+          "attempted_category": 6,
+          "payload_filter": false,
+          "additional_filter": {
+            "type": "all_of",
+            "conditions": [
+              {
+                "field": "Bwd RST Flags",
+                "operator": "==",
+                "value": 1
+              },
+              {
+                "field": "Total Length of Bwd Packet",
+                "operator": "==",
+                "value": 0
+              },
+              {
+                "field": "Flow Duration",
+                "operator": ">",
+                "value": 100000000
+              }
+            ]
+          }
+        },
+        {
+          "order": 4,
+          "id": "thu_goldeneye_payload_attempted",
+          "label": "DoS GoldenEye - Attempted",
+          "start_ns": 1518701262000000000,
+          "end_ns": 1518703905000000000,
+          "src_ips": [
+            "18.219.211.138"
+          ],
+          "dst_ips": [
+            "172.31.69.25"
+          ],
+          "dst_ports": null,
+          "attempted_category": 0,
+          "payload_filter": true,
+          "additional_filter": null
+        },
+        {
+          "order": 5,
+          "id": "thu_slowloris",
+          "label": "DoS Slowloris",
+          "start_ns": 1518706812000000000,
+          "end_ns": 1518709321000000000,
+          "src_ips": [
+            "18.217.165.70"
+          ],
+          "dst_ips": [
+            "172.31.69.25"
+          ],
+          "dst_ports": null,
+          "attempted_category": -1,
+          "payload_filter": false,
+          "additional_filter": null
+        },
+        {
+          "order": 6,
+          "id": "thu_slowloris_payload_attempted",
+          "label": "DoS Slowloris - Attempted",
+          "start_ns": 1518706812000000000,
+          "end_ns": 1518709321000000000,
+          "src_ips": [
+            "18.217.165.70"
+          ],
+          "dst_ips": [
+            "172.31.69.25"
+          ],
+          "dst_ports": null,
+          "attempted_category": 0,
+          "payload_filter": true,
+          "additional_filter": null
+        }
+      ]
+    },
+    {
+      "day": "Friday-16-02-2018",
+      "notes": [
+        "The notebook states that no actual DoS Slowhttptest or Slowloris flows are present.",
+        "The relevant traffic is failed FTP-Patator traffic caused by an incorrect tool launch."
+      ],
+      "rules": [
+        {
+          "order": 1,
+          "id": "fri_ftp_attempted",
+          "label": "FTP-BruteForce - Attempted",
+          "start_ns": 1518790334000000000,
+          "end_ns": 1518793513000000000,
+          "src_ips": [
+            "13.59.126.31"
+          ],
+          "dst_ips": [
+            "172.31.69.25"
+          ],
+          "dst_ports": null,
+          "attempted_category": 1,
+          "payload_filter": false,
+          "additional_filter": null
+        },
+        {
+          "order": 2,
+          "id": "fri_hulk",
+          "label": "DoS Hulk",
+          "start_ns": 1518803127000000000,
+          "end_ns": 1518803903000000000,
+          "src_ips": [
+            "18.219.193.20"
+          ],
+          "dst_ips": [
+            "172.31.69.25"
+          ],
+          "dst_ports": null,
+          "attempted_category": -1,
+          "payload_filter": false,
+          "additional_filter": null
+        },
+        {
+          "order": 3,
+          "id": "fri_hulk_payload_attempted",
+          "label": "DoS Hulk - Attempted",
+          "start_ns": 1518803127000000000,
+          "end_ns": 1518803903000000000,
+          "src_ips": [
+            "18.219.193.20"
+          ],
+          "dst_ips": [
+            "172.31.69.25"
+          ],
+          "dst_ports": null,
+          "attempted_category": 0,
+          "payload_filter": true,
+          "additional_filter": null
+        }
+      ]
+    }
+  ]
+}

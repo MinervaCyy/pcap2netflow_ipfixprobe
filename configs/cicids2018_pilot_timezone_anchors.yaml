@@ -1,0 +1,82 @@
+{
+  "schema_version": "1.0",
+  "dataset": "CSE-CIC-IDS-2018 corrected CICFlowMeter export",
+  "source": {
+    "repository": "https://github.com/GintsEngelen/CNS2022_Code.git",
+    "commit": "f0ce502818e59e6cd062720ab2286c5ff6f2bdec",
+    "notebook": "Labelling/CICIDS2018_labelling_fixed_CICFlowMeter.ipynb"
+  },
+  "serialization_note": "This file uses JSON syntax, which is valid YAML 1.2.",
+  "timezone_policy": {
+    "source_timezone": "UTC",
+    "normalization_timezone": "UTC",
+    "utc_offset_seconds": 0,
+    "daylight_saving_adjustment": false,
+    "matching_rule": "Normalize flow timestamps to UTC before applying inclusive nanosecond windows."
+  },
+  "pilot_days": [
+    {
+      "day": "Wednesday-14-02-2018",
+      "utc_midnight_ns": 1518566400000000000,
+      "utc_midnight": "2018-02-14T00:00:00Z",
+      "attack_windows": [
+        {
+          "start_ns": 1518618806000000000,
+          "start_utc": "2018-02-14T14:33:26Z",
+          "end_ns": 1518624631000000000,
+          "end_utc": "2018-02-14T16:10:31Z"
+        },
+        {
+          "start_ns": 1518631281199541000,
+          "start_utc": "2018-02-14T18:01:21.199541Z",
+          "end_ns": 1518631281502585000,
+          "end_utc": "2018-02-14T18:01:21.502585Z"
+        },
+        {
+          "start_ns": 1518631310000000000,
+          "start_utc": "2018-02-14T18:01:50Z",
+          "end_ns": 1518636750000000000,
+          "end_utc": "2018-02-14T19:32:30Z"
+        }
+      ]
+    },
+    {
+      "day": "Thursday-15-02-2018",
+      "utc_midnight_ns": 1518652800000000000,
+      "utc_midnight": "2018-02-15T00:00:00Z",
+      "attack_windows": [
+        {
+          "start_ns": 1518701262000000000,
+          "start_utc": "2018-02-15T13:27:42Z",
+          "end_ns": 1518703905000000000,
+          "end_utc": "2018-02-15T14:11:45Z"
+        },
+        {
+          "start_ns": 1518706812000000000,
+          "start_utc": "2018-02-15T15:00:12Z",
+          "end_ns": 1518709321000000000,
+          "end_utc": "2018-02-15T15:42:01Z"
+        }
+      ]
+    },
+    {
+      "day": "Friday-16-02-2018",
+      "utc_midnight_ns": 1518739200000000000,
+      "utc_midnight": "2018-02-16T00:00:00Z",
+      "attack_windows": [
+        {
+          "start_ns": 1518790334000000000,
+          "start_utc": "2018-02-16T14:12:14Z",
+          "end_ns": 1518793513000000000,
+          "end_utc": "2018-02-16T15:05:13Z"
+        },
+        {
+          "start_ns": 1518803127000000000,
+          "start_utc": "2018-02-16T17:45:27Z",
+          "end_ns": 1518803903000000000,
+          "end_utc": "2018-02-16T17:58:23Z"
+        }
+      ]
+    }
+  ]
+}

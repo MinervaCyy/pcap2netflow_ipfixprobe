@@ -155,3 +155,36 @@ It points to the same ARM64 image as `v1.4-dev-arm64`:
 This alias is local to DGX-1 unless it is later pushed to a container registry.
 The next workstream begins with the three dataset freezes: the 2018 rules
 schema, DistriNet expected counts, and pilot-day timezone anchors.
+
+## CICIDS2018 pilot input freeze
+
+The first three corrected CSE-CIC-IDS-2018 pilot days are frozen against
+DistriNet `CNS2022_Code` commit `f0ce502818e59e6cd062720ab2286c5ff6f2bdec`:
+
+- `Wednesday-14-02-2018`
+- `Thursday-15-02-2018`
+- `Friday-16-02-2018`
+
+Frozen artifacts:
+
+- `configs/rules_2018.yaml`: 13 ordered labelling rules, preprocessing
+  semantics, inclusive nanosecond intervals, payload filters, and additional
+  field predicates.
+- `configs/cicids2018_pilot_timezone_anchors.yaml`: explicit UTC midnight and
+  attack-window anchors for the three pilot days.
+- `tests/expected/cicids2018_pilot_counts.json`: DistriNet notebook reference
+  counts before preprocessing, after preprocessing, by label, and by attempted
+  category.
+- `scripts/04_validate_cicids2018_freeze.py`: fail-closed cross-document
+  validation.
+
+The `.yaml` files deliberately use JSON-compatible YAML 1.2 syntax so the
+freeze validator requires only the Python standard library.
+
+The expected counts are reference fixtures extracted from the saved outputs of
+the pinned DistriNet notebook. They have not yet been independently reproduced
+from the locally downloaded CICIDS2018 PCAP and generated flow data. Exact
+reproduction is the acceptance gate for the upcoming pilot-day labelling run.
+
+All source CSV timestamps and rule epochs are interpreted as UTC. No local-time
+or daylight-saving adjustment is applied.

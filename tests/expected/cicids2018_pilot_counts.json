@@ -1,0 +1,58 @@
+{
+  "schema_version": "1.0",
+  "dataset": "CSE-CIC-IDS-2018 corrected CICFlowMeter export",
+  "source": {
+    "repository": "https://github.com/GintsEngelen/CNS2022_Code.git",
+    "commit": "f0ce502818e59e6cd062720ab2286c5ff6f2bdec",
+    "notebook": "Labelling/CICIDS2018_labelling_fixed_CICFlowMeter.ipynb"
+  },
+  "scope": "Saved outputs from the pinned DistriNet labelling notebook",
+  "days": {
+    "Wednesday-14-02-2018": {
+      "rows_before_preprocessing": 6268692,
+      "rows_after_preprocessing": 5898350,
+      "label_counts": {
+        "BENIGN": 5610799,
+        "FTP-BruteForce - Attempted": 193354,
+        "SSH-BruteForce": 94197
+      },
+      "attempted_category_counts": {
+        "-1": 5704996,
+        "1": 193324,
+        "4": 30
+      }
+    },
+    "Thursday-15-02-2018": {
+      "rows_before_preprocessing": 5762777,
+      "rows_after_preprocessing": 5410102,
+      "label_counts": {
+        "BENIGN": 5372471,
+        "DoS GoldenEye": 22560,
+        "DoS Slowloris": 8490,
+        "DoS GoldenEye - Attempted": 4301,
+        "DoS Slowloris - Attempted": 2280
+      },
+      "attempted_category_counts": {
+        "-1": 5403521,
+        "4": 4248,
+        "0": 2280,
+        "6": 53
+      }
+    },
+    "Friday-16-02-2018": {
+      "rows_before_preprocessing": 7719001,
+      "rows_after_preprocessing": 7390266,
+      "label_counts": {
+        "BENIGN": 5481500,
+        "DoS Hulk": 1803160,
+        "FTP-BruteForce - Attempted": 105520,
+        "DoS Hulk - Attempted": 86
+      },
+      "attempted_category_counts": {
+        "-1": 7284660,
+        "1": 105520,
+        "0": 86
+      }
+    }
+  }
+}
