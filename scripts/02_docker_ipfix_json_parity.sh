@@ -99,6 +99,7 @@ DOCKER_SORTED_JSON="$RUN_DIR/docker.sorted.json"
 PROBE_LOG="$RUN_DIR/ipfixprobe.log"
 COLLECTOR_LOG="$RUN_DIR/ipfixcol2.log"
 CACHE_STATS="$RUN_DIR/cache-stats.txt"
+EXPORT_DURATION="$RUN_DIR/export-duration-ms.txt"
 SCHEMA_VALIDATION_LOG="$RUN_DIR/schema-validation.log"
 
 mkdir -p "$JSON_DIR"
@@ -201,6 +202,8 @@ PY_CONFIG
             exit 1
         fi
 
+        probe_start_ns="$(date +%s%N)"
+
         /usr/local/bin/ipfixprobe \
             --plugins-path /usr/local/lib/ipfixprobe \
             --telemetry /tmp/telemetry \
@@ -211,50 +214,39 @@ PY_CONFIG
 
         probe_pid=$!
         stats_found=0
+        stats_path=/tmp/telemetry/pipeline/queues/0/cache-stats
 
-        for _ in $(seq 1 500); do
-            stats_path=/tmp/telemetry/pipeline/queues/0/cache-stats
-
+        while kill -0 "$probe_pid" 2>/dev/null; do
             if [[ -f "$stats_path" ]] &&
                grep -q "^TotalExportedFlows:" "$stats_path"; then
-                cp --remove-destination -- "$stats_path" /tmp/cache-stats.txt
+                cp --remove-destination -- \
+                    "$stats_path" \
+                    /tmp/cache-stats.txt
                 stats_found=1
-                break
             fi
 
             sleep 0.01
         done
 
-        wait "$probe_pid"
+        if ! wait "$probe_pid"; then
+            cat /tmp/ipfixprobe.log >&2
+            echo "ERROR: ipfixprobe execution failed" >&2
+            exit 1
+        fi
+
+        probe_end_ns="$(date +%s%N)"
+
+        if [[ -f "$stats_path" ]] &&
+           grep -q "^TotalExportedFlows:" "$stats_path"; then
+            cp --remove-destination -- \
+                "$stats_path" \
+                /tmp/cache-stats.txt
+            stats_found=1
+        fi
 
         if [[ "$stats_found" -ne 1 ]]; then
             echo "ERROR: cache telemetry was not captured" >&2
             exit 1
-        fi
-
-        kill -TERM "$collector_pid"
-        wait "$collector_pid"
-        trap - EXIT
-
-        if grep -iE \
-            "(^|[^[:alpha:]])(error|failed|drop)([^[:alpha:]]|$)" \
-            /tmp/ipfixcol2.log; then
-            echo "ERROR: collector log contains an error indicator" >&2
-            exit 1
-        fi
-
-        grep -qE \
-            "^FlowEndReason:Collision:[[:space:]]+0$" \
-            /tmp/cache-stats.txt
-
-        if [[ "$VALIDATION_MODE" == "golden" ]]; then
-            grep -qE \
-                "^TotalExportedFlows:[[:space:]]+3$" \
-                /tmp/cache-stats.txt
-
-            grep -qE \
-                "^SUM[[:space:]]+11[[:space:]]+11[[:space:]]+588[[:space:]]+0" \
-                /tmp/ipfixprobe.log
         fi
 
         expected_records="$(
@@ -266,6 +258,96 @@ PY_CONFIG
                 }
             '\'' /tmp/cache-stats.txt
         )"
+
+        if [[ ! "$expected_records" =~ ^[0-9]+$ ]]; then
+            echo "ERROR: TotalExportedFlows is missing or invalid" >&2
+            exit 1
+        fi
+
+        json_ready=0
+        json_line_count=0
+
+        for _ in $(seq 1 600); do
+            json_line_count="$(
+                find /run/ipfix-json \
+                    -maxdepth 1 \
+                    -type f \
+                    -name "flows.*" \
+                    -exec cat {} + 2>/dev/null |
+                wc -l
+            )"
+            json_line_count="${json_line_count//[[:space:]]/}"
+
+            if [[ "$json_line_count" -eq "$expected_records" ]]; then
+                json_ready=1
+                break
+            fi
+
+            if [[ "$json_line_count" -gt "$expected_records" ]]; then
+                echo "ERROR: Docker JSON record count" \
+                     "$json_line_count exceeds TotalExportedFlows" \
+                     "$expected_records" >&2
+                exit 1
+            fi
+
+            sleep 0.1
+        done
+
+        if [[ "$json_ready" -ne 1 ]]; then
+            echo "ERROR: Docker JSON output did not reach" \
+                 "TotalExportedFlows $expected_records within 60 seconds;" \
+                 "last count=$json_line_count" >&2
+            exit 1
+        fi
+
+        kill -TERM "$collector_pid"
+
+        if ! wait "$collector_pid"; then
+            cat /tmp/ipfixcol2.log >&2
+            echo "ERROR: collector did not stop cleanly" >&2
+            exit 1
+        fi
+
+        trap - EXIT
+
+        if grep -iE \
+            "(^|[^[:alpha:]])(error|failed|drop)([^[:alpha:]]|$)" \
+            /tmp/ipfixcol2.log; then
+            echo "ERROR: collector log contains an error indicator" >&2
+            exit 1
+        fi
+
+        collision_count="$(
+            awk -F: '\''
+                /^FlowEndReason:Collision:/ {
+                    value=$NF
+                    gsub(/[[:space:]]/, "", value)
+                    print value
+                }
+            '\'' /tmp/cache-stats.txt
+        )"
+
+        if [[ ! "$collision_count" =~ ^[0-9]+$ ]]; then
+            echo "ERROR: collision count is missing or invalid" >&2
+            exit 1
+        fi
+
+        if [[ "$collision_count" -ne 0 ]]; then
+            echo "ERROR: non-zero collision count: $collision_count" >&2
+            exit 1
+        fi
+
+        if [[ "$VALIDATION_MODE" == "golden" ]]; then
+            if [[ "$expected_records" -ne 3 ]]; then
+                echo "ERROR: expected 3 Docker flows," \
+                     "found $expected_records" >&2
+                exit 1
+            fi
+
+            grep -qE \
+                "^SUM[[:space:]]+11[[:space:]]+11[[:space:]]+588[[:space:]]+0" \
+                /tmp/ipfixprobe.log
+        fi
 
         mapfile -d "" json_files < <(
             find /run/ipfix-json \
@@ -297,6 +379,18 @@ PY_CONFIG
             exit 1
         fi
 
+        export_duration_ms="$(
+            expr \
+                "$probe_end_ns" \
+                - \
+                "$probe_start_ns"
+        )"
+        export_duration_ms="$((export_duration_ms / 1000000))"
+
+        printf "%s\n" \
+            "$export_duration_ms" \
+            >/data/output/export-duration-ms.txt
+
         cp /tmp/ipfixprobe.log /data/output/ipfixprobe.log
         cp /tmp/ipfixcol2.log /data/output/ipfixcol2.log
         cp /tmp/cache-stats.txt /data/output/cache-stats.txt
@@ -306,65 +400,111 @@ for output_path in \
     "$DOCKER_SORTED_JSON" \
     "$PROBE_LOG" \
     "$COLLECTOR_LOG" \
-    "$CACHE_STATS"; do
+    "$CACHE_STATS" \
+    "$EXPORT_DURATION"; do
     if [[ ! -f "$output_path" ]]; then
         echo "ERROR: expected Docker output not found: $output_path" >&2
         exit 1
     fi
 done
 
-docker_input_dropped="$(
+if ! docker_input_dropped="$(
     awk '
         /^Input stats:/ {
-            section="input"
+            in_input=1
             next
         }
         /^Output stats:/ {
-            section="output"
+            in_input=0
+        }
+        in_input && $1 == "#" {
+            header_count++
+            if (!($2 == "packets" &&
+                  $3 == "parsed" &&
+                  $4 == "bytes" &&
+                  $5 == "dropped" &&
+                  $6 == "qtime" &&
+                  $7 == "status")) {
+                bad_header=1
+            }
             next
         }
-        section == "input" && $1 == "SUM" {
-            print $5
-            exit
+        in_input && $1 == "SUM" {
+            sum_count++
+            value=$5
+        }
+        END {
+            if (header_count != 1 ||
+                bad_header ||
+                sum_count != 1 ||
+                value !~ /^[0-9]+$/) {
+                exit 1
+            }
+            print value
         }
     ' "$PROBE_LOG"
-)"
-
-if [[ ! "$docker_input_dropped" =~ ^[0-9]+$ ]]; then
-    echo "ERROR: Docker input dropped counter is missing or invalid" >&2
+)"; then
+    echo "ERROR: Docker input statistics format is invalid or ambiguous" >&2
     exit 1
 fi
 
 if [[ "$docker_input_dropped" -ne 0 ]]; then
-    echo "ERROR: Docker input dropped counter is non-zero:"          "$docker_input_dropped" >&2
+    echo "ERROR: Docker input dropped counter is non-zero:" \
+         "$docker_input_dropped" >&2
     exit 1
 fi
 
-docker_output_dropped="$(
+if ! docker_output_dropped="$(
     awk '
         /^Output stats:/ {
-            section="output"
+            in_output=1
             next
         }
-        section == "output" && $1 ~ /^[0-9]+$/ {
-            total += $5
-            found=1
+        in_output && $1 == "#" {
+            header_count++
+            if (!($2 == "biflows" &&
+                  $3 == "packets" &&
+                  $4 == "bytes" &&
+                  $5 == "(L4)" &&
+                  $6 == "dropped" &&
+                  $7 == "status")) {
+                bad_header=1
+            }
+            next
         }
-        END {
-            if (found) {
-                print total
+        in_output && $1 ~ /^[0-9]+$/ {
+            row_count++
+            if ($5 !~ /^[0-9]+$/) {
+                bad_row=1
+            } else {
+                total += $5
             }
         }
+        END {
+            if (header_count != 1 ||
+                bad_header ||
+                row_count < 1 ||
+                bad_row) {
+                exit 1
+            }
+            print total + 0
+        }
     ' "$PROBE_LOG"
-)"
-
-if [[ ! "$docker_output_dropped" =~ ^[0-9]+$ ]]; then
-    echo "ERROR: Docker output dropped counter is missing or invalid" >&2
+)"; then
+    echo "ERROR: Docker output statistics format is invalid or empty" >&2
     exit 1
 fi
 
 if [[ "$docker_output_dropped" -ne 0 ]]; then
-    echo "ERROR: Docker output dropped counter is non-zero:"          "$docker_output_dropped" >&2
+    echo "ERROR: Docker output dropped counter is non-zero:" \
+         "$docker_output_dropped" >&2
+    exit 1
+fi
+
+docker_export_duration_ms="$(cat "$EXPORT_DURATION")"
+
+if [[ ! "$docker_export_duration_ms" =~ ^[0-9]+$ ]]; then
+    echo "ERROR: Docker export duration is missing or invalid" >&2
     exit 1
 fi
 
@@ -414,6 +554,7 @@ echo "collision=0"
 echo "input_dropped=$docker_input_dropped"
 echo "output_dropped=$docker_output_dropped"
 echo "sha256=$docker_hash"
+echo "export_duration_ms=$docker_export_duration_ms"
 echo "image=$IMAGE"
 echo "image_id=$image_id"
 echo "architecture=$image_architecture"

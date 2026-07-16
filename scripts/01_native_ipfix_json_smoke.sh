@@ -52,6 +52,8 @@ run_once() {
     local stats_path
     local collector_ready=0
     local stats_found=0
+    local json_ready=0
+    local json_line_count
     local probe_start_ns
     local probe_end_ns
     local expected_records
@@ -174,7 +176,45 @@ PY_CONFIG
         return 1
     fi
 
-    sleep 0.25
+    expected_records="$(
+        awk -F: '
+            /^TotalExportedFlows:/ {
+                value=$2
+                gsub(/[[:space:]]/, "", value)
+                print value
+            }
+        ' "$cache_stats"
+    )"
+
+    if [[ ! "$expected_records" =~ ^[0-9]+$ ]]; then
+        echo "ERROR: TotalExportedFlows is missing or invalid" >&2
+        return 1
+    fi
+
+    for _ in $(seq 1 600); do
+        json_line_count="$(
+            find "$json_dir"                 -maxdepth 1                 -type f                 -name 'flows.*'                 -exec cat {} + 2>/dev/null |
+            wc -l
+        )"
+        json_line_count="${json_line_count//[[:space:]]/}"
+
+        if [[ "$json_line_count" -eq "$expected_records" ]]; then
+            json_ready=1
+            break
+        fi
+
+        if [[ "$json_line_count" -gt "$expected_records" ]]; then
+            echo "ERROR: JSON record count $json_line_count exceeds"                  "TotalExportedFlows $expected_records" >&2
+            return 1
+        fi
+
+        sleep 0.1
+    done
+
+    if [[ "$json_ready" -ne 1 ]]; then
+        echo "ERROR: collector JSON output did not reach"              "TotalExportedFlows $expected_records within 60 seconds;"              "last count=$json_line_count" >&2
+        return 1
+    fi
 
     kill -TERM "$collector_pid"
 
@@ -213,40 +253,43 @@ PY_CONFIG
         return 1
     fi
 
-    expected_records="$(
-        awk -F: '
-            /^TotalExportedFlows:/ {
-                value=$2
-                gsub(/[[:space:]]/, "", value)
-                print value
-            }
-        ' "$cache_stats"
-    )"
-
-    if [[ ! "$expected_records" =~ ^[0-9]+$ ]]; then
-        echo "ERROR: TotalExportedFlows is missing or invalid" >&2
-        return 1
-    fi
-
-    input_dropped="$(
+    if ! input_dropped="$(
         awk '
             /^Input stats:/ {
-                section="input"
+                in_input=1
                 next
             }
             /^Output stats:/ {
-                section="output"
+                in_input=0
+            }
+            in_input && $1 == "#" {
+                header_count++
+                if (!($2 == "packets" &&
+                      $3 == "parsed" &&
+                      $4 == "bytes" &&
+                      $5 == "dropped" &&
+                      $6 == "qtime" &&
+                      $7 == "status")) {
+                    bad_header=1
+                }
                 next
             }
-            section == "input" && $1 == "SUM" {
-                print $5
-                exit
+            in_input && $1 == "SUM" {
+                sum_count++
+                value=$5
+            }
+            END {
+                if (header_count != 1 ||
+                    bad_header ||
+                    sum_count != 1 ||
+                    value !~ /^[0-9]+$/) {
+                    exit 1
+                }
+                print value
             }
         ' "$probe_log"
-    )"
-
-    if [[ ! "$input_dropped" =~ ^[0-9]+$ ]]; then
-        echo "ERROR: input dropped counter is missing or invalid" >&2
+    )"; then
+        echo "ERROR: input statistics format is invalid or ambiguous" >&2
         return 1
     fi
 
@@ -255,26 +298,44 @@ PY_CONFIG
         return 1
     fi
 
-    output_dropped="$(
+    if ! output_dropped="$(
         awk '
             /^Output stats:/ {
-                section="output"
+                in_output=1
                 next
             }
-            section == "output" && $1 ~ /^[0-9]+$/ {
-                total += $5
-                found=1
+            in_output && $1 == "#" {
+                header_count++
+                if (!($2 == "biflows" &&
+                      $3 == "packets" &&
+                      $4 == "bytes" &&
+                      $5 == "(L4)" &&
+                      $6 == "dropped" &&
+                      $7 == "status")) {
+                    bad_header=1
+                }
+                next
             }
-            END {
-                if (found) {
-                    print total
+            in_output && $1 ~ /^[0-9]+$/ {
+                row_count++
+                if ($5 !~ /^[0-9]+$/) {
+                    bad_row=1
+                } else {
+                    total += $5
                 }
             }
+            END {
+                if (header_count != 1 ||
+                    bad_header ||
+                    row_count < 1 ||
+                    bad_row) {
+                    exit 1
+                }
+                print total + 0
+            }
         ' "$probe_log"
-    )"
-
-    if [[ ! "$output_dropped" =~ ^[0-9]+$ ]]; then
-        echo "ERROR: output dropped counter is missing or invalid" >&2
+    )"; then
+        echo "ERROR: output statistics format is invalid or empty" >&2
         return 1
     fi
 
