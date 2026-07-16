@@ -210,3 +210,37 @@ flows after preprocessing:
 The 4V trace-validation rare-class objective is assigned to this day. The
 incorrect `16-Feb` freeze is not used as a pilot input and may be considered
 separately only through a future explicit decision.
+
+## CICIDS2018 acquisition and normalization freeze
+
+The acquisition policy was frozen before any formal S3 inventory or dataset
+download. A read-only reconnaissance listing is permitted only after this
+freeze and must be labelled `reconnaissance_not_frozen_inventory`. It cannot
+serve as the formal inventory, and no object may be downloaded during it.
+
+The formal inventory must subsequently repeat the complete S3 ListObjectsV2
+operation, follow all continuation tokens, record request and object
+provenance, apply the frozen PCAP-subtree selection rule, and be hashed with
+SHA-256 before download begins.
+
+Every input capture is inspected with `capinfos`, passed through an
+unconditional `pcapfix -d` attempt on an isolated working copy, selected using
+the explicit repaired-or-original branch, unconditionally processed by
+`reordercap`, merged deterministically, and checked again with `capinfos`.
+Because pcapfix may produce no repaired artifact for a valid capture, absence
+of an output file is not by itself an error. The original working copy is
+selected only when pcapfix succeeds and reports that the file is fine; all
+ambiguous outcomes fail for manual review. Per-file pcapfix elapsed time is
+recorded.
+
+ETag is retained only as auxiliary upstream identity and change-detection
+evidence. SHA-256 is the primary local integrity evidence.
+
+DistriNet flow counts are diagnostic references rather than exact acceptance
+criteria because exporter and timeout semantics can change flow partitioning.
+For `Thursday-22-02-2018`, count differences trigger 4V trace review rather
+than automatic labeler failure. All 16 SQL and 4 SQL-attempted reference flows
+are eligible for full tracing; sampling is not permitted. The 4V packet and
+flow trace is the final arbiter.
+
+The frozen pcapfix package version is `1.1.7-2`.

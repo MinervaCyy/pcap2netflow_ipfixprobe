@@ -59,5 +59,28 @@
         "3": 1
       }
     }
+  },
+  "comparison_semantics": {
+    "mode": "diagnostic_not_exact_acceptance",
+    "reason": "Reference counts come from DistriNet's corrected CICFlowMeter export. The local exporter and timeout policy may partition the same packet trace into a different number of flows.",
+    "diagnostic_tolerance": {
+      "relative_fraction": 0.5,
+      "absolute_floor_flows": 20,
+      "formula": "max(absolute_floor_flows, ceil(reference_count * relative_fraction))"
+    },
+    "outside_tolerance_action": "Require 4V packet and flow trace review rather than automatically declaring a labelling failure.",
+    "final_arbiter": "4V_packet_and_flow_trace",
+    "thursday_22_sql_full_trace": {
+      "sampling_allowed": false,
+      "labels": [
+        "Web Attack - SQL",
+        "Web Attack - SQL - Attempted"
+      ],
+      "reference_counts": {
+        "Web Attack - SQL": 16,
+        "Web Attack - SQL - Attempted": 4
+      },
+      "reference_total": 20
+    }
   }
 }

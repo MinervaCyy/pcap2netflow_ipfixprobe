@@ -1,0 +1,221 @@
+{
+  "schema_version": "1.0",
+  "dataset": "CSE-CIC-IDS-2018",
+  "serialization_note": "This file uses JSON syntax, which is valid YAML 1.2.",
+  "scope": {
+    "pilot_days": [
+      "Wednesday-14-02-2018",
+      "Thursday-15-02-2018",
+      "Thursday-22-02-2018"
+    ],
+    "first_formal_inventory_day": "Wednesday-14-02-2018",
+    "formal_inventory_and_download_status": "not_started"
+  },
+  "source": {
+    "provider": "Canadian Institute for Cybersecurity / AWS Open Data",
+    "bucket": "cse-cic-ids2018",
+    "region": "ca-central-1",
+    "anonymous_access": true,
+    "list_api": "S3 ListObjectsV2",
+    "endpoint": "https://cse-cic-ids2018.s3.ca-central-1.amazonaws.com/",
+    "day_prefix_template": "Original Network Traffic and Log data/{day}/"
+  },
+  "reconnaissance": {
+    "allowed_after_policy_freeze": true,
+    "request_role": "reconnaissance_not_frozen_inventory",
+    "read_only_list_request_only": true,
+    "object_download_allowed": false,
+    "may_be_used_as_formal_inventory": false,
+    "formal_inventory_must_be_repeated_after_reconnaissance": true,
+    "purpose": "Determine object layout and whether the selected PCAP subtree contains loose captures, archives, or both."
+  },
+  "selection": {
+    "required_day_prefix_match": true,
+    "pcap_subtree_component_regex": "(?i)(^|/)(pcap|pcaps)(/|$)",
+    "excluded_path_component_regex": "(?i)(^|/)(log|logs|csv)(/|$)",
+    "accepted_object_suffixes": [
+      ".pcap",
+      ".pcapng",
+      ".pcap.gz",
+      ".pcap.zip",
+      ".zip"
+    ],
+    "selection_rule": "Select objects beneath the exact chosen day prefix whose key contains a PCAP or PCAPs path component, reject keys containing log, logs, or csv path components, and require an accepted capture or archive suffix.",
+    "unexpected_object_type_action": "fail_for_manual_review"
+  },
+  "formal_inventory": {
+    "performed_before_download": true,
+    "request_role": "frozen_formal_inventory",
+    "request_fields_required": [
+      "endpoint",
+      "query_parameters",
+      "requested_at_utc",
+      "completed_at_utc",
+      "http_client",
+      "http_client_version"
+    ],
+    "object_fields_required": [
+      "key",
+      "size_bytes",
+      "etag",
+      "last_modified"
+    ],
+    "totals_required": [
+      "listed_object_count",
+      "listed_total_size_bytes",
+      "selected_object_count",
+      "selected_total_size_bytes"
+    ],
+    "pagination": {
+      "max_keys_per_request": 1000,
+      "follow_continuation_tokens_until_complete": true,
+      "record_request_count": true
+    },
+    "record_selection_decision_per_object": true,
+    "inventory_sha256_required": true
+  },
+  "download": {
+    "tool": "curl",
+    "record_exact_version": true,
+    "resume_partial_downloads": true,
+    "fail_on_http_error": true,
+    "follow_redirects": true,
+    "retry_count": 5,
+    "retry_delay_seconds": 5,
+    "preserve_remote_object_identity": [
+      "key",
+      "size_bytes",
+      "etag",
+      "last_modified"
+    ]
+  },
+  "integrity": {
+    "etag": {
+      "role": "auxiliary_upstream_object_identity_and_change_detection",
+      "must_not_be_assumed_md5": true
+    },
+    "sha256": {
+      "role": "primary_local_integrity_evidence",
+      "required_for_downloaded_objects": true,
+      "required_for_extracted_pcaps": true,
+      "required_for_normalized_pcaps": true,
+      "required_for_final_merged_pcap": true
+    },
+    "downloaded_size_must_match_inventory": true
+  },
+  "archive_handling": {
+    "decision_frozen_before_download": true,
+    "loose_pcaps_supported": true,
+    "zip_archives_supported": true,
+    "gzip_captures_supported": true,
+    "preserve_downloaded_archive": true,
+    "hash_archive_before_extraction": true,
+    "extract_into_isolated_staging_directory": true,
+    "reject_absolute_paths": true,
+    "reject_parent_directory_traversal": true,
+    "record_exact_extraction_tool_version": true,
+    "hash_extracted_pcaps": true,
+    "unexpected_archive_type_action": "fail_for_manual_review"
+  },
+  "pcap_processing": {
+    "required_order": [
+      "capinfos_pre",
+      "pcapfix_attempt",
+      "select_repaired_or_original",
+      "reordercap",
+      "mergecap",
+      "capinfos_post"
+    ],
+    "capinfos_pre": {
+      "run_for_every_input_pcap": true,
+      "record_packet_count": true,
+      "record_file_size": true,
+      "record_first_packet_time": true,
+      "record_last_packet_time": true,
+      "record_capture_duration": true,
+      "record_strict_time_order": true
+    },
+    "pcapfix": {
+      "package": "pcapfix",
+      "package_version": "1.1.7-2",
+      "mode": "-d",
+      "run_for_every_input_pcap": true,
+      "unconditional_attempt": true,
+      "operate_only_on_isolated_working_copy": true,
+      "preserve_raw_download": true,
+      "record_exit_code": true,
+      "record_stdout_and_stderr": true,
+      "record_elapsed_seconds_per_file": true,
+      "record_repaired_artifact_path": true,
+      "record_input_and_selected_output_sha256": true
+    },
+    "pcapfix_output_selection": {
+      "repaired_artifact_exists": "Select the repaired artifact and record touched=true.",
+      "no_repaired_artifact_and_file_fine": "When pcapfix exits successfully, produces no repaired artifact, and reports that the file seems to be fine, select the unchanged working copy and record touched=false.",
+      "otherwise": "fail_for_manual_review",
+      "must_not_assume_every_input_produces_output": true
+    },
+    "reordercap": {
+      "run_for_every_selected_pcap": true,
+      "unconditional": true,
+      "record_exact_tool_version": true,
+      "record_input_and_output_sha256": true,
+      "record_elapsed_seconds_per_file": true
+    },
+    "mergecap": {
+      "run_after_all_per_file_normalization": true,
+      "deterministic_input_order": "lexicographic_original_S3_object_key_order",
+      "record_exact_tool_version": true,
+      "record_elapsed_seconds": true
+    },
+    "capinfos_post": {
+      "run_on_final_merged_pcap": true,
+      "strict_time_order_must_be_true": true,
+      "record_full_summary": true
+    }
+  },
+  "rare_class_validation": {
+    "day": "Thursday-22-02-2018",
+    "reference_non_benign_total": 208,
+    "count_comparison_role": "diagnostic_not_exact_acceptance",
+    "reason": "The local exporter and DistriNet flow construction and timeout semantics may split the same traffic into different flow counts.",
+    "diagnostic_tolerance": {
+      "relative_fraction": 0.5,
+      "absolute_floor_flows": 20,
+      "formula": "max(absolute_floor_flows, ceil(reference_count * relative_fraction))"
+    },
+    "outside_tolerance_action": "Trigger packet and flow trace review; do not automatically classify the labeler as failed.",
+    "final_arbiter": "4V_packet_and_flow_trace",
+    "sql_full_trace": {
+      "labels": [
+        "Web Attack - SQL",
+        "Web Attack - SQL - Attempted"
+      ],
+      "reference_counts": {
+        "Web Attack - SQL": 16,
+        "Web Attack - SQL - Attempted": 4
+      },
+      "reference_total": 20,
+      "trace_scope": "Trace every reference and locally observed SQL and SQL-attempted flow; sampling is not permitted."
+    }
+  },
+  "storage_roles": {
+    "raw": "immutable_downloaded_objects_and_archives",
+    "work": "extraction_and_pcapfix_working_copies",
+    "clean": "selected_and_reordered_per_object_pcaps",
+    "output": "merged_pcap_and_downstream_flow_outputs",
+    "manifests": "inventory_download_and_processing_provenance"
+  },
+  "failure_policy": {
+    "incomplete_inventory_pagination": "fail",
+    "missing_selected_object": "fail",
+    "download_size_mismatch": "fail",
+    "sha256_failure": "fail",
+    "unsafe_archive_path": "fail",
+    "archive_extraction_failure": "fail",
+    "ambiguous_pcapfix_result": "fail",
+    "reordercap_failure": "fail",
+    "mergecap_failure": "fail",
+    "final_non_strict_time_order": "fail"
+  }
+}
