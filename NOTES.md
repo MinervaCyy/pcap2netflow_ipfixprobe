@@ -296,3 +296,28 @@ non-marker object.
 The reconnaissance output is retained only as selector-design evidence. It
 cannot be promoted or copied into the formal inventory. Formal ListObjectsV2
 collection must be repeated under policy 1.1.
+
+## CICIDS2018 formal inventory collector gate
+
+The formal inventory collector is frozen before the provenance-producing S3
+request is executed.
+
+`scripts/07_cicids2018_formal_inventory.py` reads acquisition policy 1.1 and
+uses the pinned selector without widening it. It invokes `curl` only for
+anonymous ListObjectsV2 requests and never downloads selected dataset objects.
+
+For every request page it records the endpoint, query parameters, UTC request
+interval, exact curl version, raw XML SHA-256, S3 KeyCount, parsed Contents
+count, truncation state, and continuation-token progression. KeyCount
+mismatches and truncated pages without continuation tokens fail closed.
+
+For every pilot day it requires exactly one non-empty direct-child `pcap.zip`,
+explicitly excludes `logs.zip`, ignores one zero-byte day-prefix marker, and
+fails on nested or otherwise unexpected non-marker objects.
+
+The generated formal inventory records the repository commit, policy and
+collector hashes, selected object key, size, ETag and LastModified values,
+complete totals, and zero object downloads. The canonical JSON receives a
+separate SHA-256 sidecar. Generated inventory directories remain under the
+ignored `manifests/` runtime area; a compact verification record may be
+committed only after successful collection.
