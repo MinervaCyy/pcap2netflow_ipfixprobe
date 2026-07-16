@@ -369,3 +369,41 @@ Wednesday downloader that revalidates the remote identity before every fresh
 or resumed transfer, uses a `.part` file, bounded retries and total timeout,
 performs exact-size verification and atomically publishes the completed
 archive only after validation.
+
+## CICIDS2018 Wednesday downloader gate
+
+The Wednesday archive downloader is frozen and tested before any CICIDS2018
+object transfer begins.
+
+`scripts/08_cicids2018_download_archive.py` consumes the committed download
+preflight verification record and refuses to run unless the preflight passed,
+the dataset download remains `not_started`, all warnings are resolved, and the
+extraction gate remains closed.
+
+Before every fresh or resumed transfer attempt, the downloader performs a new
+HEAD request and requires the exact pinned URL, HTTP 200, zero redirects,
+Content-Length, ETag, Last-Modified and `Accept-Ranges: bytes` to match the
+formal-inventory evidence. Any identity mismatch removes the active `.part`
+file from the resume path by quarantining it and fails for manual review.
+
+Each GET also uses `If-Match` and `If-Unmodified-Since`. A resumed request must
+return HTTP 206, while a fresh request must return HTTP 200. Rejected ranges,
+conditional failures, unexpected redirects, URL changes, oversized partial
+files and non-retryable curl failures fail closed.
+
+Network failures use explicit bounded attempts and exponential backoff. Curl
+does not perform hidden internal retries, so every retry receives a fresh
+identity check and a separate manifest entry. Transfer rate, low-speed
+threshold, retry count, backoff and total session timeout are explicit
+execution parameters.
+
+The archive is written adjacent to the final path as `pcap.zip.part`. It is
+published with an atomic rename only after reaching the exact inventory size
+and receiving a local SHA-256. The downloader writes a SHA-256 sidecar and a
+complete attempt manifest. Archive inspection and extraction remain
+unauthorised.
+
+Local HTTP fixture tests cover a fresh transfer, an interrupted transfer
+resumed only after another HEAD check, remote identity mismatch with partial
+file quarantine, and bounded retry exhaustion with the resumable partial file
+retained.
