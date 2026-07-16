@@ -275,3 +275,24 @@ The selector records hashes before and after processing, the exact invocation,
 exit status, stdout, stderr, elapsed time, artifact state, branch decision, and
 selected-output SHA-256. Its integration tests cover the valid, truncated, and
 non-zero-exit branches before any CICIDS2018 download.
+
+## CICIDS2018 selector revision from reconnaissance
+
+A read-only ListObjectsV2 reconnaissance was completed for all three pilot
+days after acquisition policy 1.0 was frozen. The report was explicitly marked
+`reconnaissance_not_frozen_inventory`, was not inventory-eligible, and
+downloaded zero objects. Its SHA-256 was `abdb88606fa48d0008253fd8f677fdb4eeaf1fb8fab59ebac5e1d1e45e4dc5b0`.
+
+Each pilot-day prefix contained exactly three entries: one zero-byte directory
+marker, one direct-child `logs.zip`, and one direct-child `pcap.zip`. There was
+no `PCAP` or `PCAPs` subtree. The earlier subtree-based selector was therefore
+revised before formal inventory or download.
+
+Acquisition policy 1.1 selects exactly one direct-child object whose basename
+is `pcap.zip`, explicitly excludes `logs.zip`, ignores zero-byte directory
+markers, rejects nested objects, and fails for manual review on any other
+non-marker object.
+
+The reconnaissance output is retained only as selector-design evidence. It
+cannot be promoted or copied into the formal inventory. Formal ListObjectsV2
+collection must be repeated under policy 1.1.

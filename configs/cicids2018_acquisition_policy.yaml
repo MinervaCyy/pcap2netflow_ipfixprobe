@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "dataset": "CSE-CIC-IDS-2018",
   "serialization_note": "This file uses JSON syntax, which is valid YAML 1.2.",
   "scope": {
@@ -31,17 +31,16 @@
   },
   "selection": {
     "required_day_prefix_match": true,
-    "pcap_subtree_component_regex": "(?i)(^|/)(pcap|pcaps)(/|$)",
-    "excluded_path_component_regex": "(?i)(^|/)(log|logs|csv)(/|$)",
-    "accepted_object_suffixes": [
-      ".pcap",
-      ".pcapng",
-      ".pcap.gz",
-      ".pcap.zip",
-      ".zip"
+    "object_scope": "direct_children_of_exact_day_prefix",
+    "ignore_zero_byte_directory_markers": true,
+    "selected_basename_exact": "pcap.zip",
+    "selected_object_count_per_day": 1,
+    "explicitly_excluded_basenames": [
+      "logs.zip"
     ],
-    "selection_rule": "Select objects beneath the exact chosen day prefix whose key contains a PCAP or PCAPs path component, reject keys containing log, logs, or csv path components, and require an accepted capture or archive suffix.",
-    "unexpected_object_type_action": "fail_for_manual_review"
+    "nested_objects_allowed": false,
+    "selection_rule": "Within the exact selected day prefix, ignore zero-byte directory markers, consider only direct child objects, select exactly one object whose basename is pcap.zip, explicitly exclude logs.zip, and fail for manual review on every other non-marker object.",
+    "unexpected_non_marker_object_action": "fail_for_manual_review"
   },
   "formal_inventory": {
     "performed_before_download": true,
@@ -72,7 +71,14 @@
       "record_request_count": true
     },
     "record_selection_decision_per_object": true,
-    "inventory_sha256_required": true
+    "inventory_sha256_required": true,
+    "selection_acceptance": {
+      "selected_object_count_per_day": 1,
+      "selected_basename_exact": "pcap.zip",
+      "unexpected_non_marker_object_count": 0,
+      "directory_markers_excluded_from_object_and_byte_totals": true,
+      "reconnaissance_results_must_not_be_reused": true
+    }
   },
   "download": {
     "tool": "curl",
@@ -217,5 +223,73 @@
     "reordercap_failure": "fail",
     "mergecap_failure": "fail",
     "final_non_strict_time_order": "fail"
+  },
+  "selection_evidence": {
+    "role": "reconnaissance_not_frozen_inventory",
+    "formal_inventory_eligible": false,
+    "object_downloads_performed": 0,
+    "source_report_filename": "cicids2018_pilot_layout_recon_20260716T074037Z.json",
+    "source_report_sha256": "abdb88606fa48d0008253fd8f677fdb4eeaf1fb8fab59ebac5e1d1e45e4dc5b0",
+    "committed_summary": "verification/cicids2018_reconnaissance.md",
+    "observed_layout": "one directory marker, one logs.zip and one pcap.zip under each pilot-day prefix",
+    "observed_days": [
+      {
+        "day": "Wednesday-14-02-2018",
+        "prefix": "Original Network Traffic and Log data/Wednesday-14-02-2018/",
+        "directory_marker_count": 1,
+        "selected_object": {
+          "basename": "pcap.zip",
+          "key": "Original Network Traffic and Log data/Wednesday-14-02-2018/pcap.zip",
+          "size_bytes": 39913353098,
+          "etag": "845cbc33e555f5906ea5c9bc520113ab-2380",
+          "last_modified": "2018-10-11T12:22:03.000Z"
+        },
+        "excluded_object": {
+          "basename": "logs.zip",
+          "key": "Original Network Traffic and Log data/Wednesday-14-02-2018/logs.zip",
+          "size_bytes": 140178796,
+          "etag": "c9f6140104a25505cfaf3c5e335937f9-9",
+          "last_modified": "2018-10-10T16:44:20.000Z"
+        }
+      },
+      {
+        "day": "Thursday-15-02-2018",
+        "prefix": "Original Network Traffic and Log data/Thursday-15-02-2018/",
+        "directory_marker_count": 1,
+        "selected_object": {
+          "basename": "pcap.zip",
+          "key": "Original Network Traffic and Log data/Thursday-15-02-2018/pcap.zip",
+          "size_bytes": 41283382768,
+          "etag": "e281e31b104af08f1e670e9bd703ff77-2461",
+          "last_modified": "2018-10-10T13:41:55.000Z"
+        },
+        "excluded_object": {
+          "basename": "logs.zip",
+          "key": "Original Network Traffic and Log data/Thursday-15-02-2018/logs.zip",
+          "size_bytes": 149507154,
+          "etag": "d3e8d67b3bc91178ef95df86c7c1e735-9",
+          "last_modified": "2018-10-10T13:41:28.000Z"
+        }
+      },
+      {
+        "day": "Thursday-22-02-2018",
+        "prefix": "Original Network Traffic and Log data/Thursday-22-02-2018/",
+        "directory_marker_count": 1,
+        "selected_object": {
+          "basename": "pcap.zip",
+          "key": "Original Network Traffic and Log data/Thursday-22-02-2018/pcap.zip",
+          "size_bytes": 50240938251,
+          "etag": "23f6eb47cd517efd60aa86fea92c5264-2995",
+          "last_modified": "2018-10-10T13:42:27.000Z"
+        },
+        "excluded_object": {
+          "basename": "logs.zip",
+          "key": "Original Network Traffic and Log data/Thursday-22-02-2018/logs.zip",
+          "size_bytes": 204766212,
+          "etag": "7f54b3fc323115ff7545268cfa33dded-13",
+          "last_modified": "2018-10-10T13:41:42.000Z"
+        }
+      }
+    ]
   }
 }

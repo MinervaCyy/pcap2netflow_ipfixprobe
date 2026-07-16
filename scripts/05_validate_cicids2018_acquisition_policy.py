@@ -86,7 +86,7 @@ def main() -> None:
     policy = load_json(POLICY_PATH)
     counts = load_json(COUNTS_PATH)
 
-    if policy.get("schema_version") != "1.0":
+    if policy.get("schema_version") != "1.1":
         fail("unsupported acquisition-policy schema version")
 
     scope = policy.get("scope", {})
@@ -130,13 +130,43 @@ def main() -> None:
         selection.get("required_day_prefix_match"),
         "exact day-prefix matching must be required",
     )
-    if not selection.get("pcap_subtree_component_regex"):
-        fail("missing PCAP-subtree selector")
     if (
-        selection.get("unexpected_object_type_action")
+        selection.get("object_scope")
+        != "direct_children_of_exact_day_prefix"
+    ):
+        fail("selector must be limited to direct day-prefix children")
+    require_true(
+        selection.get("ignore_zero_byte_directory_markers"),
+        "directory markers must be ignored",
+    )
+    if selection.get("selected_basename_exact") != "pcap.zip":
+        fail("selector must accept only the exact basename pcap.zip")
+    if selection.get("selected_object_count_per_day") != 1:
+        fail("selector must require exactly one selected object per day")
+    if selection.get("explicitly_excluded_basenames") != ["logs.zip"]:
+        fail("logs.zip exclusion is not frozen")
+    if selection.get("nested_objects_allowed") is not False:
+        fail("nested objects must not be accepted")
+    if (
+        selection.get("unexpected_non_marker_object_action")
         != "fail_for_manual_review"
     ):
-        fail("unexpected object types must fail for review")
+        fail("unexpected non-marker objects must fail for review")
+
+    evidence = policy.get("selection_evidence", {})
+    if (
+        evidence.get("role")
+        != "reconnaissance_not_frozen_inventory"
+    ):
+        fail("selection evidence role mismatch")
+    if evidence.get("formal_inventory_eligible") is not False:
+        fail("reconnaissance must not be inventory-eligible")
+    if evidence.get("object_downloads_performed") != 0:
+        fail("reconnaissance must not download objects")
+    if evidence.get("source_report_sha256") != "abdb88606fa48d0008253fd8f677fdb4eeaf1fb8fab59ebac5e1d1e45e4dc5b0":
+        fail("reconnaissance evidence SHA-256 mismatch")
+    if len(evidence.get("observed_days", [])) != 3:
+        fail("selection evidence must cover all three pilot days")
 
     inventory = policy.get("formal_inventory", {})
     require_true(
@@ -146,6 +176,26 @@ def main() -> None:
     require_true(
         inventory.get("inventory_sha256_required"),
         "formal inventory SHA-256 must be required",
+    )
+
+    inventory_acceptance = inventory.get("selection_acceptance", {})
+    if inventory_acceptance.get("selected_object_count_per_day") != 1:
+        fail("formal inventory must select exactly one object per day")
+    if inventory_acceptance.get("selected_basename_exact") != "pcap.zip":
+        fail("formal inventory selected basename mismatch")
+    if inventory_acceptance.get("unexpected_non_marker_object_count") != 0:
+        fail("formal inventory must reject unexpected non-marker objects")
+    require_true(
+        inventory_acceptance.get(
+            "directory_markers_excluded_from_object_and_byte_totals"
+        ),
+        "directory markers must be excluded from inventory totals",
+    )
+    require_true(
+        inventory_acceptance.get(
+            "reconnaissance_results_must_not_be_reused"
+        ),
+        "reconnaissance must not be reused as formal inventory",
     )
     require_true(
         inventory.get("pagination", {}).get(
@@ -254,6 +304,17 @@ def main() -> None:
         fail("platform document lacks the HTTPS Ubuntu ports source")
     if "outbound HTTP" not in platform_text:
         fail("platform document lacks the outbound HTTP diagnosis")
+
+    evidence_text = (
+        ROOT / "verification/cicids2018_reconnaissance.md"
+    ).read_text(encoding="utf-8")
+    if "abdb88606fa48d0008253fd8f677fdb4eeaf1fb8fab59ebac5e1d1e45e4dc5b0" not in evidence_text:
+        fail("committed reconnaissance summary lacks the source hash")
+    if "`pcap.zip`" not in evidence_text:
+        fail("committed reconnaissance summary lacks pcap.zip")
+    for day in EXPECTED_DAYS:
+        if day not in evidence_text:
+            fail(f"committed reconnaissance summary lacks {day}")
 
     serialized = json.dumps(policy)
     if "PENDING" in serialized:
