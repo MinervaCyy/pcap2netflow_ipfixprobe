@@ -341,3 +341,31 @@ runtime manifest directory.
 The download gate remains closed. The next candidate is the Wednesday
 `pcap.zip`; its execution command and archive-handling path must be reviewed
 against the committed inventory record before download begins.
+
+## CICIDS2018 Wednesday download preflight passed
+
+The Wednesday download preflight completed from repository commit
+`e0ec5e224d2dc20993186adf229a3cf6df45b87b` with no warnings and zero object downloads. The canonical
+runtime preflight SHA-256 is `c7b35285552f6ea292013c5ee593e5e8fa2dd86abd22e04e2a530c41384bf211`.
+
+The remote object identity matched the committed formal inventory:
+`39913353098` bytes, ETag `845cbc33e555f5906ea5c9bc520113ab-2380`, and Last-Modified
+`2018-10-11T12:22:03Z`. The request returned HTTP 200 with no redirect and
+advertised byte-range support.
+
+The shared ext4 data filesystem had
+`2886.540` GiB available. Both the
+`47.172` GiB download-only gate and the
+conservative 600 GiB three-day lifecycle gate passed.
+
+Python, unzip and zipinfo passed the synthetic ZIP64 compatibility probe. The
+HTTP clock check differed by only
+`0.742` seconds. Multipart ETag diagnostics
+reported 2,380 parts at approximately
+`15.993420` MiB per part.
+
+The dataset download remains unopened. The next gate is to freeze and test a
+Wednesday downloader that revalidates the remote identity before every fresh
+or resumed transfer, uses a `.part` file, bounded retries and total timeout,
+performs exact-size verification and atomically publishes the completed
+archive only after validation.
