@@ -147,8 +147,9 @@ PY_CONFIG
 
     while kill -0 "$probe_pid" 2>/dev/null; do
         if [[ -f "$stats_path" ]] &&
-           grep -q '^TotalExportedFlows:' "$stats_path"; then
-            cp --remove-destination -- "$stats_path" "$cache_stats"
+           grep -q '^TotalExportedFlows:' "$stats_path" 2>/dev/null &&
+           cp --remove-destination -- \
+               "$stats_path" "$cache_stats" 2>/dev/null; then
             stats_found=1
         fi
 
@@ -166,8 +167,9 @@ PY_CONFIG
     probe_end_ns="$(date +%s%N)"
 
     if [[ -f "$stats_path" ]] &&
-       grep -q '^TotalExportedFlows:' "$stats_path"; then
-        cp --remove-destination -- "$stats_path" "$cache_stats"
+       grep -q '^TotalExportedFlows:' "$stats_path" 2>/dev/null &&
+       cp --remove-destination -- \
+           "$stats_path" "$cache_stats" 2>/dev/null; then
         stats_found=1
     fi
 
