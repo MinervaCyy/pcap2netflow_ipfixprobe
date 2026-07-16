@@ -158,16 +158,16 @@ schema, DistriNet expected counts, and pilot-day timezone anchors.
 
 ## CICIDS2018 pilot input freeze
 
-The first three corrected CSE-CIC-IDS-2018 pilot days are frozen against
+The three selected corrected CSE-CIC-IDS-2018 pilot days are frozen against
 DistriNet `CNS2022_Code` commit `f0ce502818e59e6cd062720ab2286c5ff6f2bdec`:
 
 - `Wednesday-14-02-2018`
 - `Thursday-15-02-2018`
-- `Friday-16-02-2018`
+- `Thursday-22-02-2018`
 
 Frozen artifacts:
 
-- `configs/rules_2018.yaml`: 13 ordered labelling rules, preprocessing
+- `configs/rules_2018.yaml`: 21 ordered labelling rules, preprocessing
   semantics, inclusive nanosecond intervals, payload filters, and additional
   field predicates.
 - `configs/cicids2018_pilot_timezone_anchors.yaml`: explicit UTC midnight and
@@ -188,3 +188,25 @@ reproduction is the acceptance gate for the upcoming pilot-day labelling run.
 
 All source CSV timestamps and rule epochs are interpreted as UTC. No local-time
 or daylight-saving adjustment is applied.
+
+### Pilot-day drift correction
+
+Commit `38687a8` accidentally froze `Friday-16-02-2018` as the third pilot
+day even though the selected pilot set was `14-Feb`, `15-Feb`, and `22-Feb`.
+Repository history contained no approval for this substitution. The drift was
+detected and corrected before any CSE-CIC-IDS-2018 data was downloaded.
+
+`Thursday-22-02-2018` retains its intended role as the subtle and rare-class
+Web-attack pilot. Its pinned DistriNet output contains only 208 non-BENIGN
+flows after preprocessing:
+
+- 76 Web Attack - Brute Force - Attempted
+- 69 Web Attack - Brute Force
+- 40 Web Attack - XSS
+- 16 Web Attack - SQL
+- 4 Web Attack - SQL - Attempted
+- 3 Web Attack - XSS - Attempted
+
+The 4V trace-validation rare-class objective is assigned to this day. The
+incorrect `16-Feb` freeze is not used as a pilot input and may be considered
+separately only through a future explicit decision.

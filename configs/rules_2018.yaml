@@ -59,8 +59,10 @@
     "supported_operators": [
       "==",
       "<",
+      "<=",
       ">",
-      ">="
+      ">=",
+      "not_in"
     ]
   },
   "days": [
@@ -300,57 +302,273 @@
       ]
     },
     {
-      "day": "Friday-16-02-2018",
+      "day": "Thursday-22-02-2018",
       "notes": [
-        "The notebook states that no actual DoS Slowhttptest or Slowloris flows are present.",
-        "The relevant traffic is failed FTP-Patator traffic caused by an incorrect tool launch."
+        "Selected as the rare and subtle web-attack pilot.",
+        "This day supplies the rare-class target for 4V trace validation.",
+        "Only 208 post-preprocessing flows are non-BENIGN in the pinned notebook output."
       ],
       "rules": [
         {
           "order": 1,
-          "id": "fri_ftp_attempted",
-          "label": "FTP-BruteForce - Attempted",
-          "start_ns": 1518790334000000000,
-          "end_ns": 1518793513000000000,
+          "id": "thu22_web_sql",
+          "label": "Web Attack - SQL",
+          "start_ns": 1519330590418906000,
+          "end_ns": 1519331276022793000,
           "src_ips": [
-            "13.59.126.31"
+            "18.218.115.60"
           ],
           "dst_ips": [
-            "172.31.69.25"
-          ],
-          "dst_ports": null,
-          "attempted_category": 1,
-          "payload_filter": false,
-          "additional_filter": null
-        },
-        {
-          "order": 2,
-          "id": "fri_hulk",
-          "label": "DoS Hulk",
-          "start_ns": 1518803127000000000,
-          "end_ns": 1518803903000000000,
-          "src_ips": [
-            "18.219.193.20"
-          ],
-          "dst_ips": [
-            "172.31.69.25"
+            "172.31.69.28"
           ],
           "dst_ports": null,
           "attempted_category": -1,
+          "payload_filter": false,
+          "additional_filter": {
+            "type": "all_of",
+            "conditions": [
+              {
+                "field": "Total Length of Fwd Packet",
+                "operator": ">",
+                "value": 0
+              },
+              {
+                "field": "Total Length of Bwd Packet",
+                "operator": ">",
+                "value": 0
+              }
+            ]
+          }
+        },
+        {
+          "order": 2,
+          "id": "thu22_web_sql_startup_attempted",
+          "label": "Web Attack - SQL - Attempted",
+          "start_ns": 1519330470169342000,
+          "end_ns": 1519330498599986000,
+          "src_ips": [
+            "18.218.115.60"
+          ],
+          "dst_ips": [
+            "172.31.69.28"
+          ],
+          "dst_ports": null,
+          "attempted_category": 2,
           "payload_filter": false,
           "additional_filter": null
         },
         {
           "order": 3,
-          "id": "fri_hulk_payload_attempted",
-          "label": "DoS Hulk - Attempted",
-          "start_ns": 1518803127000000000,
-          "end_ns": 1518803903000000000,
+          "id": "thu22_web_sql_payload_attempted",
+          "label": "Web Attack - SQL - Attempted",
+          "start_ns": 1519330590418906000,
+          "end_ns": 1519331276022793000,
           "src_ips": [
-            "18.219.193.20"
+            "18.218.115.60"
           ],
           "dst_ips": [
-            "172.31.69.25"
+            "172.31.69.28"
+          ],
+          "dst_ports": null,
+          "attempted_category": 0,
+          "payload_filter": true,
+          "additional_filter": null
+        },
+        {
+          "order": 4,
+          "id": "thu22_web_xss",
+          "label": "Web Attack - XSS",
+          "start_ns": 1519321899783923000,
+          "end_ns": 1519324181827037000,
+          "src_ips": [
+            "18.218.115.60"
+          ],
+          "dst_ips": [
+            "172.31.69.28"
+          ],
+          "dst_ports": null,
+          "attempted_category": -1,
+          "payload_filter": false,
+          "additional_filter": {
+            "type": "all_of",
+            "conditions": [
+              {
+                "field": "Src Port",
+                "operator": "not_in",
+                "value": [
+                  63782,
+                  64144
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "order": 5,
+          "id": "thu22_web_xss_setup_63782_attempted",
+          "label": "Web Attack - XSS - Attempted",
+          "start_ns": 1519321899783923000,
+          "end_ns": 1519324181827037000,
+          "src_ips": [
+            "18.218.115.60"
+          ],
+          "dst_ips": [
+            "172.31.69.28"
+          ],
+          "dst_ports": null,
+          "attempted_category": 2,
+          "payload_filter": false,
+          "additional_filter": {
+            "type": "all_of",
+            "conditions": [
+              {
+                "field": "Src Port",
+                "operator": "==",
+                "value": 63782
+              }
+            ]
+          }
+        },
+        {
+          "order": 6,
+          "id": "thu22_web_xss_setup_64144_attempted",
+          "label": "Web Attack - XSS - Attempted",
+          "start_ns": 1519321899783923000,
+          "end_ns": 1519324181827037000,
+          "src_ips": [
+            "18.218.115.60"
+          ],
+          "dst_ips": [
+            "172.31.69.28"
+          ],
+          "dst_ports": null,
+          "attempted_category": 3,
+          "payload_filter": false,
+          "additional_filter": {
+            "type": "all_of",
+            "conditions": [
+              {
+                "field": "Src Port",
+                "operator": "==",
+                "value": 64144
+              }
+            ]
+          }
+        },
+        {
+          "order": 7,
+          "id": "thu22_web_xss_payload_attempted",
+          "label": "Web Attack - XSS - Attempted",
+          "start_ns": 1519321899783923000,
+          "end_ns": 1519324181827037000,
+          "src_ips": [
+            "18.218.115.60"
+          ],
+          "dst_ips": [
+            "172.31.69.28"
+          ],
+          "dst_ports": null,
+          "attempted_category": 0,
+          "payload_filter": true,
+          "additional_filter": {
+            "type": "all_of",
+            "conditions": [
+              {
+                "field": "Src Port",
+                "operator": "not_in",
+                "value": [
+                  63782,
+                  64144
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "order": 8,
+          "id": "thu22_web_bruteforce",
+          "label": "Web Attack - Brute Force",
+          "start_ns": 1519309071336902000,
+          "end_ns": 1519313039858533000,
+          "src_ips": [
+            "18.218.115.60"
+          ],
+          "dst_ips": [
+            "172.31.69.28"
+          ],
+          "dst_ports": null,
+          "attempted_category": -1,
+          "payload_filter": false,
+          "additional_filter": {
+            "type": "all_of",
+            "conditions": [
+              {
+                "field": "Total Fwd Packet",
+                "operator": ">",
+                "value": 20
+              }
+            ]
+          }
+        },
+        {
+          "order": 9,
+          "id": "thu22_web_bruteforce_short_attempted",
+          "label": "Web Attack - Brute Force - Attempted",
+          "start_ns": 1519309071336902000,
+          "end_ns": 1519313039858533000,
+          "src_ips": [
+            "18.218.115.60"
+          ],
+          "dst_ips": [
+            "172.31.69.28"
+          ],
+          "dst_ports": null,
+          "attempted_category": 5,
+          "payload_filter": false,
+          "additional_filter": {
+            "type": "all_of",
+            "conditions": [
+              {
+                "field": "Total Fwd Packet",
+                "operator": "<=",
+                "value": 20
+              },
+              {
+                "field": "Total Length of Fwd Packet",
+                "operator": ">",
+                "value": 0
+              }
+            ]
+          }
+        },
+        {
+          "order": 10,
+          "id": "thu22_web_bruteforce_startup_attempted",
+          "label": "Web Attack - Brute Force - Attempted",
+          "start_ns": 1519308824965705000,
+          "end_ns": 1519308947920399000,
+          "src_ips": [
+            "18.218.115.60"
+          ],
+          "dst_ips": [
+            "172.31.69.28"
+          ],
+          "dst_ports": null,
+          "attempted_category": 2,
+          "payload_filter": false,
+          "additional_filter": null
+        },
+        {
+          "order": 11,
+          "id": "thu22_web_bruteforce_payload_attempted",
+          "label": "Web Attack - Brute Force - Attempted",
+          "start_ns": 1519309071336902000,
+          "end_ns": 1519313039858533000,
+          "src_ips": [
+            "18.218.115.60"
+          ],
+          "dst_ips": [
+            "172.31.69.28"
           ],
           "dst_ports": null,
           "attempted_category": 0,

@@ -17,7 +17,7 @@ ANCHORS_PATH = ROOT / "configs/cicids2018_pilot_timezone_anchors.yaml"
 EXPECTED_DAYS = {
     "Wednesday-14-02-2018",
     "Thursday-15-02-2018",
-    "Friday-16-02-2018",
+    "Thursday-22-02-2018",
 }
 
 EXPECTED_SOURCE = {
@@ -159,6 +159,19 @@ def main() -> None:
                     if operator not in supported_operators:
                         fail(
                             f"{day}/{rule_id}: undeclared operator {operator!r}"
+                        )
+
+                    value = condition.get("value")
+                    if operator == "not_in":
+                        if not isinstance(value, list) or not value:
+                            fail(
+                                f"{day}/{rule_id}: not_in requires "
+                                "a non-empty list value"
+                            )
+                    elif not isinstance(value, (int, float)):
+                        fail(
+                            f"{day}/{rule_id}: operator {operator!r} "
+                            "requires a numeric value"
                         )
 
         rule_windows[day] = windows
