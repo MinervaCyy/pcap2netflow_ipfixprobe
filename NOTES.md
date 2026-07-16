@@ -244,3 +244,34 @@ are eligible for full tracing; sampling is not permitted. The 4V packet and
 flow trace is the final arbiter.
 
 The frozen pcapfix package version is `1.1.7-2`.
+
+## pcapfix repaired-or-original control-flow gate
+
+The pinned Ubuntu `pcapfix 1.1.7-2` behaviour was measured using isolated
+copies of `tests/data/smoke.pcap`.
+
+For a valid capture, pcapfix exited with status zero, printed
+`Your pcap file looks proper. Nothing to fix!` to standard output, removed its
+prospective repaired output, and left the working input unchanged.
+
+For a copy truncated by 32 bytes, `capinfos` reported a final packet cut short.
+Pcapfix exited with status zero, generated a distinct repaired artifact,
+reported one corrected corruption, and left the truncated working input
+unchanged.
+
+For a missing input, pcapfix returned status 254 and wrote the open failure to
+standard error.
+
+`scripts/06_pcapfix_select.py` implements the frozen branch semantics using an
+explicit `-o repaired.pcap` path:
+
+- a successful non-empty repaired artifact is selected with `touched=true`;
+- successful no-output plus the pinned no-repair marker selects the unchanged
+  working copy with `touched=false`;
+- every other result emits a manifest and returns
+  `fail_for_manual_review`.
+
+The selector records hashes before and after processing, the exact invocation,
+exit status, stdout, stderr, elapsed time, artifact state, branch decision, and
+selected-output SHA-256. Its integration tests cover the valid, truncated, and
+non-zero-exit branches before any CICIDS2018 download.
