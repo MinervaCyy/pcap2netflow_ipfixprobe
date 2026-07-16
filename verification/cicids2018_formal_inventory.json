@@ -1,0 +1,75 @@
+{
+  "collector": {
+    "http_client": "curl",
+    "http_client_version": "curl 8.5.0 (aarch64-unknown-linux-gnu) libcurl/8.5.0 OpenSSL/3.0.13 zlib/1.3 brotli/1.1.0 zstd/1.5.5 libidn2/2.3.7 libpsl/0.21.2 (+libidn2/2.3.7) libssh/0.10.6/openssl/zlib nghttp2/1.59.0 librtmp/2.3 OpenLDAP/2.6.10",
+    "path": "scripts/07_cicids2018_formal_inventory.py",
+    "python_version": "3.12.3",
+    "sha256": "8dc416c69b86e0ded15a056f30de2f3b11f4734d46d1646641e35dc75ae8ac7e",
+    "xml_parser": "xml.etree.ElementTree"
+  },
+  "download_gate": {
+    "downloaded_object_count": 0,
+    "next_candidate": "Wednesday-14-02-2018/pcap.zip",
+    "requirement_before_download": "Review and freeze the download/extraction execution command against this inventory record.",
+    "status": "closed"
+  },
+  "policy": {
+    "path": "configs/cicids2018_acquisition_policy.yaml",
+    "schema_version": "1.1",
+    "sha256": "160cd0b26e155855edee8670cc6fddb2f71d19e315b0e2407f68c6a51db44b32"
+  },
+  "record_type": "cicids2018_formal_inventory_verification",
+  "repository": {
+    "branch": "main",
+    "commit": "ae42ac1d47c0ac7432441f46b8b7ba2e7c12ad0f",
+    "worktree_clean": true
+  },
+  "schema_version": "1.0",
+  "selected_objects": [
+    {
+      "day": "Thursday-15-02-2018",
+      "etag": "e281e31b104af08f1e670e9bd703ff77-2461",
+      "integrity_role": "ETag is auxiliary upstream identity only; local SHA-256 will be primary after download.",
+      "key": "Original Network Traffic and Log data/Thursday-15-02-2018/pcap.zip",
+      "last_modified": "2018-10-10T13:41:55.000Z",
+      "size_bytes": 41283382768,
+      "size_gib": 38.448
+    },
+    {
+      "day": "Thursday-22-02-2018",
+      "etag": "23f6eb47cd517efd60aa86fea92c5264-2995",
+      "integrity_role": "ETag is auxiliary upstream identity only; local SHA-256 will be primary after download.",
+      "key": "Original Network Traffic and Log data/Thursday-22-02-2018/pcap.zip",
+      "last_modified": "2018-10-10T13:42:27.000Z",
+      "size_bytes": 50240938251,
+      "size_gib": 46.791
+    },
+    {
+      "day": "Wednesday-14-02-2018",
+      "etag": "845cbc33e555f5906ea5c9bc520113ab-2380",
+      "integrity_role": "ETag is auxiliary upstream identity only; local SHA-256 will be primary after download.",
+      "key": "Original Network Traffic and Log data/Wednesday-14-02-2018/pcap.zip",
+      "last_modified": "2018-10-11T12:22:03.000Z",
+      "size_bytes": 39913353098,
+      "size_gib": 37.172
+    }
+  ],
+  "source_inventory": {
+    "formal_inventory_eligible": true,
+    "object_downloads_performed": 0,
+    "role": "frozen_formal_inventory",
+    "runtime_path": "manifests/cicids2018_formal_inventory_20260716T074536Z/inventory.json",
+    "sha256": "7730f4b7479b1c2a7d42635e58eadd1393dc291bcbf7470d495920547b0ea858"
+  },
+  "status": "formal_inventory_complete_download_not_started",
+  "totals": {
+    "listed_object_count": 6,
+    "listed_total_size_bytes": 131932126279,
+    "pilot_day_count": 3,
+    "request_count": 3,
+    "selected_object_count": 3,
+    "selected_total_gib": 122.411,
+    "selected_total_size_bytes": 131437674117,
+    "unexpected_non_marker_object_count": 0
+  }
+}

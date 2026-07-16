@@ -321,3 +321,23 @@ complete totals, and zero object downloads. The canonical JSON receives a
 separate SHA-256 sidecar. Generated inventory directories remain under the
 ignored `manifests/` runtime area; a compact verification record may be
 committed only after successful collection.
+
+## CICIDS2018 formal inventory completed
+
+The formal three-day S3 inventory was collected from repository commit
+`ae42ac1d47c0ac7432441f46b8b7ba2e7c12ad0f` under acquisition policy 1.1. The canonical
+inventory SHA-256 is `7730f4b7479b1c2a7d42635e58eadd1393dc291bcbf7470d495920547b0ea858`.
+
+The inventory selected exactly one `pcap.zip` for each pilot day, selected
+three objects totalling `131437674117` bytes
+(`122.411` GiB), observed no
+unexpected non-marker objects, and downloaded zero dataset objects.
+
+A compact committed record is stored in
+`verification/cicids2018_formal_inventory.json` with a corresponding Markdown
+summary. The full inventory and raw XML responses remain in the ignored
+runtime manifest directory.
+
+The download gate remains closed. The next candidate is the Wednesday
+`pcap.zip`; its execution command and archive-handling path must be reviewed
+against the committed inventory record before download begins.
