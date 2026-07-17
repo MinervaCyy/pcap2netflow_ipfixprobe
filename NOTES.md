@@ -276,6 +276,45 @@ exit status, stdout, stderr, elapsed time, artifact state, branch decision, and
 selected-output SHA-256. Its integration tests cover the valid, truncated, and
 non-zero-exit branches before any CICIDS2018 download.
 
+The pcapfix healthy-file no-output path and the capinfos cut-short `rc=1` path establish a general rule: external-tool return-code and output contracts must be measured with fixtures before real-data execution, never inferred from convention.
+
+## CICIDS2018 Stage 2 cleaning gate
+
+`scripts/09_cicids2018_stage2_clean_day.py` implements the frozen per-day
+normalization order:
+
+`capinfos_pre` → `pcapfix_attempt` →
+`select_repaired_or_original` → `reordercap` → `mergecap` →
+`capinfos_post`.
+
+Inputs are supplied through an explicit manifest and sorted by their original
+source keys. Each raw input is hashed before and after processing, pcapfix
+operates only on an isolated working copy, reordercap runs unconditionally,
+and mergecap explicitly emits classic PCAP format. The merged candidate is
+published atomically only after final capinfos validation reports strict time
+order.
+
+The pre-repair capinfos gate has one pinned exception measured with Wireshark
+4.2.2. Exit code 1 is accepted only when stdout contains a complete parseable
+summary, the reported size matches the filesystem, and stderr contains only
+the measured mid-packet cut-short diagnostic family. Unrelated exit-code-1
+results and compound diagnostics fail closed. The post-merge capinfos gate
+does not use this exception and still requires exit code zero and strict time
+order. The day manifest exposes accepted cut-short inputs through the
+`cut_short_inputs` count.
+
+Seven dedicated offline fixtures cover healthy untouched selection, truncated
+repair selection, non-zero pcapfix manual review, the real cut-short pre-check,
+an unrelated exit-code-1 rejection, compound-diagnostic rejection, and strict
+post-check rejection. The complete repository regression ran 34 tests and
+passed. The dedicated Stage 2 fixture-log SHA-256 was
+`c2813dff349c5b7da4c68c24e6f3e8b48ab4c703d30ec3b1a5a90c3d509bd724`;
+the complete regression-log SHA-256 was
+`fd7c50f3c7d70cb6dd642cdf0c5daf5cf3ed31074003aa0082faa2a293890649`.
+
+These gates used only the synthetic smoke PCAP and temporary directories.
+No CICIDS2018 archive was inspected, extracted or processed.
+
 ## CICIDS2018 selector revision from reconnaissance
 
 A read-only ListObjectsV2 reconnaissance was completed for all three pilot
