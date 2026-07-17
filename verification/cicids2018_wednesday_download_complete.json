@@ -1,0 +1,152 @@
+{
+  "attempts": [
+    {
+      "attempt": 1,
+      "completed_at_utc": "2026-07-17T04:20:52.534254Z",
+      "head": {
+        "accept_ranges": "bytes",
+        "content_length": 39913353098,
+        "curl_exit_code": 0,
+        "etag": "845cbc33e555f5906ea5c9bc520113ab-2380",
+        "headers_sha256": "5a6633d9c56c651d8377ffa6ecfcf19d64bf98d941515dd1998bd6ab0ad0c1ad",
+        "http_code": 200,
+        "identity_matches": true,
+        "last_modified": "2018-10-11T12:22:03Z",
+        "redirect_count": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "writeout_sha256": "d0f445b9ef4f7fc1dfee1d1793b8884b567a616d9d2ad2b5dea2b5bcf239f4ac"
+      },
+      "part_size_before_bytes": 2345046016,
+      "started_at_utc": "2026-07-16T10:50:49.640946Z",
+      "transfer": {
+        "bytes_added": 30999319934,
+        "curl_exit_code": 18,
+        "download_speed_bytes_per_second": 492038,
+        "elapsed_seconds": 63002.134698,
+        "headers_sha256": "eb51ae6ea6b225d04468220a7cc532d53cfa6366051f96126d49fc00f5040b66",
+        "http_code": 206,
+        "part_size_after_bytes": 33344365950,
+        "part_size_before_bytes": 2345046016,
+        "redirect_count": 0,
+        "resumed": true,
+        "stderr_sha256": "0d5f3ad325520b130edf4a5b86c65c19bd42929fa8f2a8ed7404f591d0af05a4",
+        "writeout_sha256": "8ee5d039377957b0190376b5eb2d059ec2ea4f7caf7ce96102484580149daad1"
+      }
+    },
+    {
+      "attempt": 2,
+      "completed_at_utc": "2026-07-17T08:41:36.718610Z",
+      "head": {
+        "accept_ranges": "bytes",
+        "content_length": 39913353098,
+        "curl_exit_code": 0,
+        "etag": "845cbc33e555f5906ea5c9bc520113ab-2380",
+        "headers_sha256": "c43f3a9510c37d3a12f078cab208f30c1db3389300eaaf57b7c57aa3ccb34d5f",
+        "http_code": 200,
+        "identity_matches": true,
+        "last_modified": "2018-10-11T12:22:03Z",
+        "redirect_count": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "writeout_sha256": "0493e4120765e3a223c8588c2710f6631b4382616c68efc44d3811d6dc0109d4"
+      },
+      "part_size_before_bytes": 33344365950,
+      "started_at_utc": "2026-07-17T04:21:22.536592Z",
+      "transfer": {
+        "bytes_added": 6568987148,
+        "curl_exit_code": 0,
+        "download_speed_bytes_per_second": 420732,
+        "elapsed_seconds": 15613.298801,
+        "headers_sha256": "1d7f0234cb23d9ac802baf7656eb6161acf0f5a87f3e8340514663c6e1c5ed3a",
+        "http_code": 206,
+        "part_size_after_bytes": 39913353098,
+        "part_size_before_bytes": 33344365950,
+        "redirect_count": 0,
+        "resumed": true,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "writeout_sha256": "0f7e98d7ed0c8f067a5e2f8107cce91e29daa7d2a94978628cea343a54739bb4"
+      }
+    }
+  ],
+  "authorisation": {
+    "archive_inspection_authorised": false,
+    "extraction_authorised": false
+  },
+  "completion": {
+    "attempt_count": 2,
+    "completed_at_utc": "2026-07-17T08:41:57.955000Z",
+    "exit_code": 0,
+    "partial_file_absent_after_publication": true,
+    "published_atomically_from_part": true,
+    "runtime_manifest_error": null,
+    "runtime_manifest_status": "complete",
+    "started_at_utc": "2026-07-16T10:50:49.640613Z"
+  },
+  "final_archive": {
+    "group_gid": 1001,
+    "hard_link_count": 1,
+    "independent_sha256_matches": true,
+    "manifest_sha256_matches": true,
+    "mode_octal": "664",
+    "owner_uid": 1001,
+    "path": "raw/cicids2018/Wednesday-14-02-2018/pcap.zip",
+    "regular_file": true,
+    "sha256": "5632de8f837991e448bf75432fc07d9b3b1f23fc16e8a32189dacf772b759eaa",
+    "sidecar_sha256_matches": true,
+    "size_bytes": 39913353098,
+    "symbolic_link": false
+  },
+  "gates": {
+    "archive_content_inspection": "not_started",
+    "archive_path_metadata": "passed",
+    "download": "passed",
+    "extraction": "closed",
+    "stage2_processing": "not_started"
+  },
+  "generated_at_utc": "2026-07-17T11:02:32.179545Z",
+  "notes": [
+    "The first resumed transfer ended with curl exit code 18 after retaining a valid partial archive.",
+    "A fresh HEAD identity check preceded the second Range request, which returned HTTP 206 and completed with curl exit code 0.",
+    "No ZIP member listing, archive-content inspection or extraction was performed during completion review."
+  ],
+  "provenance": {
+    "console_log": ".tmp/cicids2018_wednesday_resume_20260716T105049Z/console.log",
+    "console_log_sha256": "5949fe59d6ce830c4c31179283dc5ab48c773f6269db1588db91b8a1faa5fbe9",
+    "exit_code_file": ".tmp/cicids2018_wednesday_resume_20260716T105049Z/exit_code.txt",
+    "exit_code_file_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "launch_record": ".tmp/cicids2018_wednesday_resume_20260716T105049Z/launch.json",
+    "launch_record_sha256": "579563ddce3490ad244be838afbbdebafffa488b71b5ce1b1312fc9f6890ca58",
+    "preflight_record": "verification/cicids2018_wednesday_download_preflight.json",
+    "preflight_record_sha256": "439739531dbd39fccaf0e9e97ef3dc74fbe116ba1327f69d6db3a95a6dc0f30c",
+    "runtime_manifest": "manifests/cicids2018_wednesday_resume_20260716T105049Z/download_manifest.json",
+    "runtime_manifest_sha256": "109c860821f29d406190484bace287fc4c32437bbfd893b9044d346f0825b294",
+    "sha256_sidecar": "raw/cicids2018/Wednesday-14-02-2018/pcap.zip.sha256",
+    "sha256_sidecar_sha256": "ec0088bb5168e4564e6b3bad8a2be8331f298e961495f30ec4e46a96ebf05cd8"
+  },
+  "record_type": "cicids2018_wednesday_download_completion_verification",
+  "repository": {
+    "downloader_path": "scripts/08_cicids2018_download_archive.py",
+    "downloader_sha256": "ad1e94ec3465ffe4b9dfbb27f4562f0c7c99be1bed5aa5a5d3b5fe5dfd4cb218",
+    "frozen_downloader_commit": "90cfe50d0d92a9617499a333a571b754a8ed3af9"
+  },
+  "schema_version": "1.0",
+  "selected_object": {
+    "day": "Wednesday-14-02-2018",
+    "etag": "845cbc33e555f5906ea5c9bc520113ab-2380",
+    "key": "Original Network Traffic and Log data/Wednesday-14-02-2018/pcap.zip",
+    "last_modified": "2018-10-11T12:22:03Z",
+    "size_bytes": 39913353098,
+    "size_gib": 37.172,
+    "url": "https://cse-cic-ids2018.s3.ca-central-1.amazonaws.com/Original%20Network%20Traffic%20and%20Log%20data/Wednesday-14-02-2018/pcap.zip"
+  },
+  "status": "download_complete_verified",
+  "transfer_rate": {
+    "bytes_added": 37568307082,
+    "elapsed_seconds": 78668.314387,
+    "full_acquisition_rate_available": false,
+    "full_acquisition_rate_unavailable_reason": "The interruption record does not contain the initial session start timestamp.",
+    "initial_part_size_bytes": 2345046016,
+    "scope": "resume session beginning with the retained partial archive",
+    "wall_clock_bytes_per_second": 477553.223,
+    "wall_clock_mib_per_second": 0.45543
+  }
+}

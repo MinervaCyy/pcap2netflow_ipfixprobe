@@ -407,3 +407,39 @@ Local HTTP fixture tests cover a fresh transfer, an interrupted transfer
 resumed only after another HEAD check, remote identity mismatch with partial
 file quarantine, and bounded retry exhaustion with the resumable partial file
 retained.
+
+## CICIDS2018 Wednesday download completed
+
+The Wednesday archive download completed under frozen downloader commit
+`90cfe50d0d92a9617499a333a571b754a8ed3af9`. The downloader exit-code file
+contained `0`, and the runtime manifest reported `complete` with no error.
+
+Both transfer attempts performed a fresh HEAD identity check matching the
+frozen object size, ETag and Last-Modified values. The first resumed GET
+returned HTTP 206 and ended with curl exit code 18 after retaining a valid
+partial archive. After the configured backoff, the second fresh identity check
+passed and the resumed HTTP 206 transfer completed with curl exit code 0.
+
+The final archive was published atomically from `.part` as
+`raw/cicids2018/Wednesday-14-02-2018/pcap.zip`. Its exact size is
+`39913353098` bytes and its independently recomputed SHA-256 is
+`5632de8f837991e448bf75432fc07d9b3b1f23fc16e8a32189dacf772b759eaa`,
+matching both the runtime manifest and the adjacent SHA-256 sidecar.
+
+The resume session added `37568307082` bytes in `78668.314387` seconds,
+corresponding to a wall-clock average of `0.455430 MiB/s`. A full-acquisition
+wall-clock average was not calculated because the interruption record does not
+contain the first session's initial start timestamp.
+
+Compact committed evidence is stored in
+`verification/cicids2018_wednesday_download_complete.json` and
+`verification/cicids2018_wednesday_download_complete.md`. Their SHA-256 values
+are respectively
+`12e57876efed5964925128d5a56d7679caaa06076ca11f98dfb052df302c2f50`
+and
+`566e7dc95fe857ab59562a726ebe28ea3d13c271a55662bf5642c33c926b7d42`.
+
+The download gate and final-path metadata gate passed. No ZIP member listing,
+archive-content inspection or extraction was performed. Archive inspection
+remains `not_started`, extraction remains closed, and Stage 2 processing has
+not started.
