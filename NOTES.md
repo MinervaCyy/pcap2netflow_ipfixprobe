@@ -482,3 +482,9 @@ The download gate and final-path metadata gate passed. No ZIP member listing,
 archive-content inspection or extraction was performed. Archive inspection
 remains `not_started`, extraction remains closed, and Stage 2 processing has
 not started.
+
+## Data placement and experiment-discipline rules
+
+1. Internet downloads happen once, on DGX-1 only. DGX-5 receives data later over the 200 Gbit/s direct link using `scp` or `rsync`; it must never re-download the source archives from the Internet.
+2. Only processed final PCAPs from Stage 2 are copied to DGX-5, not raw ZIP archives. Verify and record SHA-256 on DGX-5 so every replay experiment identifies the exact file replayed.
+3. During formal E1-E3 experiments, DGX-1 must remain free of heavy background work, including downloads, extraction and labelling, because the measurements target CPU-versus-GPU memory contention.
