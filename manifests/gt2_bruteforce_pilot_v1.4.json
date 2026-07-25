@@ -1,0 +1,71 @@
+{
+  "manifest_version": "1.0",
+  "pipeline_version": "1.4",
+  "release_state": "development",
+  "role": "CIC-GT2 labeling pilot, not full-dataset validation",
+  "status": "passed",
+  "validated_commit": "7b8cc59e74fd0cd12aa51cf1b5b512d2afff0653",
+  "capture": {
+    "name": "BruteForce20180214_200Kpkts.pcap",
+    "tracked_in_git": false,
+    "local_path": "raw/cicids2018/2018-02-14/BruteForce20180214_200Kpkts.pcap",
+    "size_bytes": 40227268,
+    "sha256": "7b0e2114b74457b99245cc6a58d9a26eadf8250a5438a82e265586678acd2283",
+    "packet_scope": "first 200,000 packets of the 2018-02-14 brute-force capture"
+  },
+  "ground_truth": {
+    "name": "GT2.csv",
+    "tracked_in_git": false,
+    "local_path": "raw/cicids2018/ground_truth/GT2.csv",
+    "size_bytes": 29392896,
+    "sha256": "64b12c492060df23f809590313b080bd262ac6eb12d85a9b3de4f5fec2b05f3f",
+    "role": "official CIC connection-level reference used only for labeling ipfixprobe biflows",
+    "timestamp_normalization": {
+      "dataset_timezone": "UTC-04:00",
+      "ssh_hour_correction": "SSH-Bruteforce timestamps with hour 02 are interpreted as hour 14",
+      "matching_tolerance_seconds": 1
+    },
+    "malformed_rows": {
+      "skipped_count": 1,
+      "line_number": 268838,
+      "reason": "truncated final CSV row",
+      "raw_prefix": "172.31.69.25-13.58.98.64-22-34990-6,SSH-Bruteforce,13"
+    }
+  },
+  "labeler": {
+    "script": "scripts/10_label_gt2_bruteforce.py",
+    "sha256": "858bf8b73db706229b2d4a2b67052f0fa015ad7192ef4b0bcc87ce3e5a474595",
+    "matching_key": "canonical bidirectional five-tuple plus timestamp overlap",
+    "unmatched_semantics": "not listed as an official FTP/SSH brute-force connection in GT2"
+  },
+  "input_flows": {
+    "path": ".tmp/native-ipfix-json.3hmgVH/native.sorted.json",
+    "records": 4400,
+    "sha256": "3425e24c6709d83fbd910c71e404856a81053b87e838bba27a407f1147f22d46",
+    "collision_count": 0,
+    "input_dropped": 0,
+    "output_dropped": 0
+  },
+  "results": {
+    "output_path": ".tmp/BruteForce20180214_200Kpkts.labeled.moved-path.jsonl",
+    "output_sha256": "4925bccb9b38b1fb0b11076ac83bd870cb5c8dbb3f64e0d06a79d143519b3d25",
+    "total_flows": 4400,
+    "label_counts": {
+      "BACKGROUND": 14,
+      "SSH-Bruteforce": 4386
+    },
+    "candidate_count_distribution": {
+      "0": 14,
+      "1": 32,
+      "2": 4354
+    },
+    "conflicting_labels": 0,
+    "label_invariants": "passed",
+    "repeat_determinism": "byte-identical"
+  },
+  "scope_limitations": [
+    "This validates only the 2018-02-14 SSH brute-force pilot segment.",
+    "It does not establish that GT2 can replace DistriNet for every CICIDS2018 attack day.",
+    "BACKGROUND means unmatched against the relevant GT2 brute-force reference, not universally benign traffic."
+  ]
+}

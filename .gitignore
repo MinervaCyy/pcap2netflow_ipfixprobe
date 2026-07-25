@@ -65,3 +65,5 @@ tests/telemetry-docker/
 .build/
 .tmp/
 !manifests/robustness_bigflows_v1.4.json
+
+!manifests/gt2_bruteforce_pilot_v1.4.json
